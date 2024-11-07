@@ -1,0 +1,7 @@
+*.exe
+*.log
+.terraform/
+main.tf
+terraform.tfstate
+/bin
+/pkg
