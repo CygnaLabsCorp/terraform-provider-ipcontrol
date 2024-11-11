@@ -63,7 +63,7 @@ func NewTransportConfig(sslVerify string, httpRequestTimeout int) (cfg Transport
 
 type HttpRequestBuilder interface {
 	Init(HostConfig)
-	BuildUrl(r RequestType, ref string) (urlStr string)
+	BuildUrl(r RequestType, obj cc.IpamObject, ref string) (urlStr string)
 	BuildBody(r RequestType, obj cc.IpamObject) (jsonStr []byte)
 	BuildRequest(r RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error)
 }
@@ -174,24 +174,33 @@ func (wrb *CaaRequestBuilder) Init(cfg HostConfig) {
 	wrb.HostConfig = cfg
 }
 
-func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, ref string) (urlStr string) {
+func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, obj cc.IpamObject, ref string) (urlStr string) {
 	path := []string{"workflow"}
 	if len(ref) > 0 {
 		path = append(path, ref)
 	}
 
-	qry := ""
+	var objJSON []byte
+	var err error
+	objJSON, err = json.Marshal(obj)
+	if err != nil {
+		log.Printf("Cannot marshal object '%s': %s", obj, err)
+		// return path
+	}
+	var dataMap map[string]interface{}
+	if err := json.Unmarshal(objJSON, &dataMap); err != nil {
+		fmt.Println("Error unmarshaling JSON:", err)
+		return
+	}
 	vals := url.Values{}
-	vals.Add("address", "138.0.0.0")
+	for key, value := range dataMap {
+		vals.Set(key, fmt.Sprintf("%v", value))
+	}
+
+	qry := ""
 	if t == GET {
 		qry = vals.Encode()
 	}
-
-	// valsDel := url.Values{}
-	// valsDel.Add("address", "138.0.0.0/24")
-	// if t == GET {
-	// 	qry = vals.Encode()
-	// }
 
 	u := url.URL{
 		Scheme:   "https",
@@ -246,7 +255,7 @@ func (wrb *CaaRequestBuilder) BuildBody(t RequestType, obj cc.IpamObject) []byte
 
 func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error) {
 
-	urlStr := wrb.BuildUrl(t, ref)
+	urlStr := wrb.BuildUrl(t, obj, ref)
 
 	var bodyStr []byte
 	if obj != nil {
@@ -427,8 +436,8 @@ func RunDebug() {
 
 	objMgr := new(ObjectManager)
 	objMgr.connector = connector
-	//result, err := objMgr.CreateSubnet("incadmin", "incadmin", "/InControl/phong", "138.0.0.0", "Any", "24")
 
-	result, err := objMgr.GetSubnetByIdRef("24")
+	//result, err := objMgr.CreateSubnet("incadmin", "incadmin", "/InControl/phong", "138.0.0.0", "Any", "24")
+	result, err := objMgr.GetIPAddress("23.0.0.2", "/InControl/phong")
 	fmt.Print(result, err)
 }
