@@ -18,84 +18,76 @@ func NewObjectManager(connector CAAConnector) *ObjectManager {
 }
 
 /* CreateSubnet */
-func (objMgr *ObjectManager) CreateSubnet(cidr string, name string, gateway string, params en.Params) (*en.Subnet, error) {
-	subnet := en.NewSubnet(en.Subnet{
-		Cidr: cidr,
+func (objMgr *ObjectManager) CreateSubnet(username string, password string, container string, address string, typeSubnet string, size string) (*en.IPC_Subnet_Post, error) {
+	subnet := en.NewSubnetPost(en.IPC_Subnet_Post{
+		Username:  username,
+		Password:  password,
+		Container: container,
+		Address:   address,
+		Type:      typeSubnet,
+		Size:      size,
 	})
 
-	if name != "" {
-		subnet.Name = name
-	}
-
-	if gateway != "" {
-		subnet.Gateway = gateway
-	}
-
-	if params != nil && len(params) > 0 {
-		subnet.Parameters = en.Params(params)
-		log.Println("[DEBUG] PARAMS: " + fmt.Sprintf("%v", subnet.Parameters))
-	}
-
-	idRef, err := objMgr.connector.CreateObject(subnet)
+	idRef, err := objMgr.connector.CreateObject(subnet, "/ipcaddsubnet")
 	log.Println("[DEBUG] Subnet ID: " + fmt.Sprintf("%v", idRef))
 	if err != nil {
 		return nil, err
 	}
-	// sets the Id property here
-	subnet.Id = idRef
 
 	return subnet, err
 }
 
 /* get Subnet by Id ref */
-func (objMgr *ObjectManager) GetSubnetByIdRef(idRef string) (*en.Subnet, error) {
-	subnet := en.NewSubnet(en.Subnet{})
-	err := objMgr.connector.GetObject(subnet, idRef, &subnet)
+func (objMgr *ObjectManager) GetSubnetByIdRef(idRef string) (*en.IPC_Subnet, error) {
+	subnet := en.NewSubnet(en.IPC_Subnet{})
+	err := objMgr.connector.GetObject(subnet, "/ipcgetsubnet", &subnet)
+	log.Println("[DEBUG] get subnet: %s", subnet)
 	return subnet, err
 }
 
 /* delete Subnet by Id ref */
 func (objMgr *ObjectManager) DeleteSubnetByIdRef(idRef string) (string, error) {
-	return objMgr.connector.DeleteObject(idRef)
+	subnet := en.NewSubnetDel(en.IPC_Subnet_Del{
+		Username:  "incadmin",
+		Password:  "incadmin",
+		Container: "InControl/phong",
+		Name:      "138.0.0.0/24",
+	})
+	str, err := objMgr.connector.DeleteObject(subnet, "/ipcdeletesubnet")
+	log.Printf("delete subnet %s", subnet.Name)
+	return str, err
 }
 
 /* UpdateSubnet */
-func (objMgr *ObjectManager) UpdateSubnet(idRef string, params en.Params) (*en.Subnet, error) {
-	subnet := en.NewSubnet(en.Subnet{})
+func (objMgr *ObjectManager) UpdateSubnet(idRef string, params en.Params) (*en.IPC_Subnet_Post, error) {
+	subnet := en.NewSubnetPost(en.IPC_Subnet_Post{
+		Username:  params["username"].(string),
+		Password:  params["password"].(string),
+		Container: params["container"].(string),
+		Address:   params["address"].(string),
+		Type:      params["type"].(string),
+		Size:      params["size"].(string),
+	})
 
-	if params != nil && len(params) > 0 {
-		subnet.Parameters = en.Params(params)
-	}
-
-	if params != nil && len(params) > 0 {
-		subnet.Parameters = en.Params(params)
-		log.Println("[DEBUG] PARAMS:: " + fmt.Sprintf("%v", subnet.Parameters))
-	}
-
-	log.Println("[DEBUG] PARAMS-UPD: " + fmt.Sprintf("%v", subnet.Parameters))
-	log.Println("[DEBUG] PARAMS-UPD: " + fmt.Sprintf("%v", idRef))
-
-	idRef, err := objMgr.connector.UpdateObject(subnet, idRef)
+	idRef, err := objMgr.connector.UpdateObject(subnet, "/ipcmodifysubnet")
 	if err != nil {
 		return nil, err
 	}
-	// sets the Id property here
-	subnet.Id = idRef
 
-	return subnet, err
+	return subnet, nil
 }
 
 /* Export Subnet(s) via body parameter selectors */
-func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.Subnet, error) {
-	subnets := []en.Subnet{}
+func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.IPC_Subnet, error) {
+	subnets := []en.IPC_Subnet{}
 
 	// instantiate an empty subnet, so that the objectType will be picked by the build* functions in the caaclient.go
-	subnet := en.NewSubnet(en.Subnet{})
+	subnet := en.NewSubnet(en.IPC_Subnet{})
 
 	// append all params to the subnet
-	if params != nil && len(params) > 0 {
-		subnet.Parameters = en.Params(params)
-	}
+	// if params != nil && len(params) > 0 {
+	// 	subnet.Parameters = en.Params(params)
+	// }
 
 	err := objMgr.connector.ExportObjects(subnet, &subnets)
 

@@ -13,38 +13,38 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"server": &schema.Schema{
+			"server": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_SERVER", nil),
 				Description: "Diamond IP CAA server IP address.",
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_USERNAME", nil),
 				Description: "User to authenticate with Diamond IP CAA.",
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_PASSWORD", nil),
 				Description: "Password to authenticate with Diamond IP CAA.",
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_PORT", "1880"),
 				Description: "Port number used for connection to Diamond IP CAA.",
 			},
 
-			"sslverify": &schema.Schema{
+			"sslverify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SSLVERIFY", "false"),
 				Description: "If true, CAA client will verify SSL certificates.",
 			},
-			"connect_timeout": &schema.Schema{
+			"connect_timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CONNECT_TIMEOUT", 60),
