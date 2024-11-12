@@ -8,19 +8,19 @@ type Params map[string]interface{}
 /* IPAM Object Base interface */
 type IpamObject interface {
 	ObjectType() string
-	// Params() Params
+	Params() Params
 }
 
 /* Object base struct */
 type ObjBase struct {
 	objectType string
-	// Parameters Params
+	Parameters Params
 }
 
 func (obj *ObjBase) ObjectType() string {
 	return obj.objectType
 }
 
-// func (obj *ObjBase) Params() Params {
-// 	return obj.Parameters
-// }
+func (obj *ObjBase) Params() Params {
+	return obj.Parameters
+}

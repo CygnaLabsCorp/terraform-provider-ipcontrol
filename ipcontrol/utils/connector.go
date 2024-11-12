@@ -63,7 +63,7 @@ func NewTransportConfig(sslVerify string, httpRequestTimeout int) (cfg Transport
 
 type HttpRequestBuilder interface {
 	Init(HostConfig)
-	BuildUrl(r RequestType, ref string) (urlStr string)
+	BuildUrl(r RequestType, ref string, obj cc.IpamObject) (urlStr string)
 	BuildBody(r RequestType, obj cc.IpamObject) (jsonStr []byte)
 	BuildRequest(r RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error)
 }
@@ -174,7 +174,7 @@ func (wrb *CaaRequestBuilder) Init(cfg HostConfig) {
 	wrb.HostConfig = cfg
 }
 
-func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, ref string) (urlStr string) {
+func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, ref string, obj cc.IpamObject) (urlStr string) {
 	path := []string{"workflow"}
 	if len(ref) > 0 {
 		path = append(path, ref)
@@ -182,7 +182,7 @@ func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, ref string) (urlStr string
 
 	qry := ""
 	vals := url.Values{}
-	vals.Add("address", "138.0.0.0")
+	// vals.Add("address", "138.0.0.0")
 	if t == GET {
 		qry = vals.Encode()
 	}
@@ -246,7 +246,7 @@ func (wrb *CaaRequestBuilder) BuildBody(t RequestType, obj cc.IpamObject) []byte
 
 func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error) {
 
-	urlStr := wrb.BuildUrl(t, ref)
+	urlStr := wrb.BuildUrl(t, ref, obj)
 
 	var bodyStr []byte
 	if obj != nil {

@@ -74,7 +74,7 @@ func dataSourceSubnetsRead(d *schema.ResourceData, m interface{}) error {
 		params[k] = v
 	}
 
-	var response *en.IPC_Subnet
+	var response *en.IPCSubnet
 	response, err = objMgr.GetSubnetByIdRef("1")
 	if err != nil {
 		// diags = append(diags, diag.Diagnostic{

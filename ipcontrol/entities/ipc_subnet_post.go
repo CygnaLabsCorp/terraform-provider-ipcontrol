@@ -1,6 +1,6 @@
 package entities
 
-type IPC_Subnet_Post struct {
+type IPCSubnetPost struct {
 	ObjBase
 	Username  string `json:"username,omitempty"`
 	Password  string `json:"password,omitempty"`
@@ -13,7 +13,7 @@ type IPC_Subnet_Post struct {
 /*
  * Subnet object constructor
  */
-func NewSubnetPost(sb IPC_Subnet_Post) *IPC_Subnet_Post {
+func NewSubnetPost(sb IPCSubnetPost) *IPCSubnetPost {
 	res := sb
 	res.objectType = "subnet"
 	return &res
