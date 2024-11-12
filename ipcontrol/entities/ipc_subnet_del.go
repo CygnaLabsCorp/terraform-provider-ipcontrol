@@ -1,6 +1,6 @@
 package entities
 
-type IPC_Subnet_Del struct {
+type IPCSubnetDel struct {
 	ObjBase
 	Username  string `json:"username,omitempty"`
 	Password  string `json:"password,omitempty"`
@@ -11,7 +11,7 @@ type IPC_Subnet_Del struct {
 /*
  * Subnet object constructor
  */
-func NewSubnetDel(sb IPC_Subnet_Del) *IPC_Subnet_Del {
+func NewSubnetDel(sb IPCSubnetDel) *IPCSubnetDel {
 	res := sb
 	res.objectType = "subnet"
 	return &res

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type IPC_Subnet struct {
+type IPCSubnet struct {
 	ObjBase
 	Container []string `json:"container,omitempty"`
 	Address   string   `json:"blockAddr,omitempty"`
@@ -17,7 +17,7 @@ type IPC_Subnet struct {
 /*
  * Subnet object constructor
  */
-func NewSubnet(sb IPC_Subnet) *IPC_Subnet {
+func NewSubnet(sb IPCSubnet) *IPCSubnet {
 	res := sb
 	res.objectType = "subnet"
 	return &res
@@ -30,7 +30,7 @@ func (b Bool) MarshalJSON() ([]byte, error) {
 	return json.Marshal("False")
 }
 
-func (m IPC_Subnet) String() string {
+func (m IPCSubnet) String() string {
 	return fmt.Sprintf(
 		"IPC_Subnet{Container: [%s], Address: %s, Type: %s, Size: %d}",
 		strings.Join(m.Container, ", "),

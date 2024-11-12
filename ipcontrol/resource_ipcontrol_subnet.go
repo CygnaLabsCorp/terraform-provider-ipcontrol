@@ -21,14 +21,6 @@ func resourceSubnet() *schema.Resource {
 		Delete: deleteSubnetRecord,
 
 		Schema: map[string]*schema.Schema{
-			"username": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"password": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"container": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -56,8 +48,6 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	objMgr := cc.NewObjectManager(connector)
 
 	// trimmed strings
-	username := strings.TrimSpace(d.Get("username").(string))
-	password := strings.TrimSpace(d.Get("password").(string))
 	container := strings.TrimSpace(d.Get("container").(string))
 	address := strings.TrimSpace(d.Get("address").(string))
 	typeSubnet := strings.TrimSpace(d.Get("type").(string))
@@ -65,11 +55,11 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
-	var subnet *en.IPC_Subnet_Post
+	var subnet *en.IPCSubnetPost
 	var err error
 
 	// we demand all the create/reserveIps logic to the CAA
-	subnet, err = objMgr.CreateSubnet(username, password, container, address, typeSubnet, size)
+	subnet, err = objMgr.CreateSubnet(container, address, typeSubnet, size)
 	if err != nil {
 		return err
 	}
