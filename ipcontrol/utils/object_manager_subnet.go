@@ -87,3 +87,13 @@ func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.IPCSubnet, e
 
 	return &subnets, nil
 }
+
+func (objMgr *ObjectManager) GetIPAddress(ip string, container string) (*en.IPCAddressGet, error) {
+	ipAddress := en.NewIPCAddressGet(en.IPCAddressGet{
+		IPAddress: ip,
+		Container: container,
+	})
+	err := objMgr.connector.GetObject(ipAddress, "/ipcgetdevice", &ipAddress)
+	log.Println("[DEBUG] get address: %s", ipAddress)
+	return ipAddress, err
+}
