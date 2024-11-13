@@ -5,3 +5,6 @@ main.tf
 terraform.tfstate
 /bin
 /pkg
+.terraform.*
+terraform.tfstate.backup
+.vscode

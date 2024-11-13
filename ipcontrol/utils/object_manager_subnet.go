@@ -8,12 +8,21 @@ import (
 )
 
 /* CreateSubnet */
-func (objMgr *ObjectManager) CreateSubnet(container string, address string, typeSubnet string, size string) (*en.IPCSubnetPost, error) {
+func (objMgr *ObjectManager) CreateSubnet(
+	container string,
+	address string,
+	typeSubnet string,
+	size int,
+	name string,
+	version int,
+) (*en.IPCSubnetPost, error) {
 	subnet := en.NewSubnetPost(en.IPCSubnetPost{
-		Container: container,
-		Address:   address,
-		Type:      typeSubnet,
-		Size:      size,
+		Container:      container,
+		Address:        address,
+		Type:           typeSubnet,
+		Size:           size,
+		AddressVersion: version,
+		Name:           name,
 	})
 
 	idRef, err := objMgr.connector.CreateObject(subnet, "/ipcaddsubnet")
@@ -28,33 +37,37 @@ func (objMgr *ObjectManager) CreateSubnet(container string, address string, type
 /* get Subnet by Id ref */
 func (objMgr *ObjectManager) GetSubnetByIdRef(idRef string) (*en.IPCSubnet, error) {
 	subnet := &en.IPCSubnet{}
-	err := objMgr.connector.GetObject(nil, "/ipcgetsubnet", &subnet)
-	log.Println("[DEBUG] get subnet: %s", subnet)
+	sf := map[string]string{
+		"address": idRef,
+	}
+	queryParams := en.NewQueryParams(sf)
+	err := objMgr.connector.GetObject(nil, "/ipcgetsubnet", &subnet, queryParams)
+	log.Printf("[DEBUG] get subnet: %s \n", subnet)
 	return subnet, err
 }
 
 /* delete Subnet by Id ref */
-func (objMgr *ObjectManager) DeleteSubnetByIdRef(idRef string) (string, error) {
-	subnet := en.NewSubnetDel(en.IPCSubnetDel{
-		Username:  "incadmin",
-		Password:  "incadmin",
-		Container: "InControl/phong",
-		Name:      "138.0.0.0/24",
-	})
-	str, err := objMgr.connector.DeleteObject(subnet, "/ipcdeletesubnet")
-	log.Printf("delete subnet %s", subnet.Name)
+func (objMgr *ObjectManager) DeleteSubnetByIdRef(idRef string, size string) (string, error) {
+	sf := map[string]string{
+		"size":      size,
+		"blockAddr": idRef,
+	}
+	query := en.NewQueryParams(sf)
+	str, err := objMgr.connector.DeleteObject(nil, "/ipcdeletechildblock", query)
+	log.Printf("delete subnet %s", idRef)
 	return str, err
 }
 
 /* UpdateSubnet */
-func (objMgr *ObjectManager) UpdateSubnet(idRef string, params en.Params) (*en.IPCSubnetPost, error) {
+func (objMgr *ObjectManager) UpdateSubnet(
+	idRef string,
+	name string,
+	size int,
+) (*en.IPCSubnetPost, error) {
 	subnet := en.NewSubnetPost(en.IPCSubnetPost{
-		Username:  params["username"].(string),
-		Password:  params["password"].(string),
-		Container: params["container"].(string),
-		Address:   params["address"].(string),
-		Type:      params["type"].(string),
-		Size:      params["size"].(string),
+		Address: idRef,
+		Name:    name,
+		Size:    size,
 	})
 
 	idRef, err := objMgr.connector.UpdateObject(subnet, "/ipcmodifysubnet")
@@ -76,8 +89,8 @@ func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.IPCSubnet, e
 	// if params != nil && len(params) > 0 {
 	// 	subnet.Parameters = en.Params(params)
 	// }
-
-	err := objMgr.connector.ExportObjects(subnet, &subnets)
+	query := en.NewQueryParams(nil)
+	err := objMgr.connector.ExportObjects(subnet, &subnets, query)
 
 	// log.Println("[DEBUG] ExportSubnets Response: "+fmt.Sprintf("%v", subnets))
 
@@ -89,11 +102,13 @@ func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.IPCSubnet, e
 }
 
 func (objMgr *ObjectManager) GetIPAddress(ip string, container string) (*en.IPCAddressGet, error) {
-	ipAddress := en.NewIPCAddressGet(en.IPCAddressGet{
-		IPAddress: ip,
-		Container: container,
-	})
-	err := objMgr.connector.GetObject(ipAddress, "/ipcgetdevice", &ipAddress)
-	log.Println("[DEBUG] get address: %s", ipAddress)
+	ipAddress := en.NewIPCAddressGet(en.IPCAddressGet{})
+	sf := map[string]string{
+		"iPAddress": ip,
+		"container": container,
+	}
+	query := en.NewQueryParams(sf)
+	err := objMgr.connector.GetObject(ipAddress, "/ipcgetdevice", &ipAddress, query)
+	log.Printf("[DEBUG] get address: %v", ipAddress)
 	return ipAddress, err
 }

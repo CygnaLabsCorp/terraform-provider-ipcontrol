@@ -3,6 +3,7 @@ package ipcontrol
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	// "strconv"
 
@@ -23,19 +24,32 @@ func resourceSubnet() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"container": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 			"address": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"size": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"address_version": {
+				ForceNew: true,
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  4,
 			},
 		},
 	}
@@ -49,9 +63,12 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	// trimmed strings
 	container := strings.TrimSpace(d.Get("container").(string))
+	cc.FormatContainer(&container)
 	address := strings.TrimSpace(d.Get("address").(string))
 	typeSubnet := strings.TrimSpace(d.Get("type").(string))
-	size := strings.TrimSpace(d.Get("size").(string))
+	size := d.Get("size").(int)
+	name := d.Get("name").(string)
+	version := d.Get("address_version").(int)
 
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
@@ -59,7 +76,7 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	var err error
 
 	// we demand all the create/reserveIps logic to the CAA
-	subnet, err = objMgr.CreateSubnet(container, address, typeSubnet, size)
+	subnet, err = objMgr.CreateSubnet(container, address, typeSubnet, size, name, version)
 	if err != nil {
 		return err
 	}
@@ -89,10 +106,12 @@ func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	// setting computed properties from returned object JSON
 	// d.Set("username", string(obj.Username))
 	// d.Set("password", string(obj.Password))
-	d.Set("container", strings.Join(obj.Container, ","))
+	container := strings.Join(obj.Container, ",")
+	cc.FormatContainer(&container)
+	d.Set("container", container)
 	d.Set("address", string(obj.Address))
-	d.Set("type", string(obj.Type))
-	d.Set("size", string(obj.Size))
+	d.Set("size", obj.Size)
+	d.Set("name", string(obj.Name))
 
 	log.Printf("[DEBUG] %s: Completed reading subnet block", rsSubnetIdString(d))
 
@@ -105,31 +124,12 @@ func updateSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
 
-	username := strings.TrimSpace(d.Get("username").(string))
-	password := strings.TrimSpace(d.Get("password").(string))
-	container := strings.TrimSpace(d.Get("container").(string))
-	address := strings.TrimSpace(d.Get("address").(string))
-	typeSubnet := strings.TrimSpace(d.Get("type").(string))
-	size := strings.TrimSpace(d.Get("size").(string))
-
-	// create params slice
-	parMap := make(map[string]string)
-
-	parMap["username"] = username
-	parMap["password"] = password
-	parMap["container"] = container
-	parMap["address"] = address
-	parMap["type"] = typeSubnet
-	parMap["size"] = size
-
-	params := en.Params{}
-	for k, v := range parMap {
-		params[k] = v
-	}
+	name := d.Get("name").(string)
+	size := d.Get("size").(int)
 
 	idRef := d.Id()
 
-	_, err = objMgr.UpdateSubnet(idRef, params)
+	_, err = objMgr.UpdateSubnet(idRef, name, size)
 
 	if err != nil {
 		return err
@@ -144,8 +144,9 @@ func deleteSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	objMgr := cc.NewObjectManager(connector)
 
 	log.Printf("[DEBUG] %s: Beginning Deletion of network block", rsSubnetIdString(d))
+	size := d.Get("size").(int)
 
-	refRes, err := objMgr.DeleteSubnetByIdRef(string(d.Id()))
+	refRes, err := objMgr.DeleteSubnetByIdRef(string(d.Id()), strconv.Itoa(size))
 	if err != nil {
 		return err
 	}

@@ -12,6 +12,7 @@ type IPCSubnet struct {
 	Address   string   `json:"blockAddr,omitempty"`
 	Type      string   `json:"blockType,omitempty"`
 	Size      int      `json:"blockSize,omitempty"`
+	Name      string   `json:"blockName,omitempty"`
 }
 
 /*

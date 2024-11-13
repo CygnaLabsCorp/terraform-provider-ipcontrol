@@ -1,13 +1,13 @@
 package entities
 
 type IPCSubnetPost struct {
-	ObjBase
-	Username  string `json:"username,omitempty"`
-	Password  string `json:"password,omitempty"`
-	Container string `json:"container,omitempty"`
-	Address   string `json:"address,omitempty"`
-	Type      string `json:"type,omitempty"`
-	Size      string `json:"size,omitempty"`
+	ObjBase        `json:"-"`
+	Container      string `json:"container,omitempty"`
+	Address        string `json:"address,omitempty"`
+	Type           string `json:"type,omitempty"`
+	Size           int    `json:"size,omitempty"`
+	Name           string `json:"name,omitempty"`
+	AddressVersion int    `json:"addressversion,omitempty"`
 }
 
 /*
@@ -18,10 +18,3 @@ func NewSubnetPost(sb IPCSubnetPost) *IPCSubnetPost {
 	res.objectType = "subnet"
 	return &res
 }
-
-// func (b Bool) MarshalJSON() ([]byte, error) {
-// 	if b {
-// 		return json.Marshal("True")
-// 	}
-// 	return json.Marshal("False")
-// }

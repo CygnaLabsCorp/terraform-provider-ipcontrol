@@ -63,9 +63,9 @@ func NewTransportConfig(sslVerify string, httpRequestTimeout int) (cfg Transport
 
 type HttpRequestBuilder interface {
 	Init(HostConfig)
-	BuildUrl(r RequestType, obj cc.IpamObject, ref string) (urlStr string)
+	BuildUrl(r RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (urlStr string)
 	BuildBody(r RequestType, obj cc.IpamObject) (jsonStr []byte)
-	BuildRequest(r RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error)
+	BuildRequest(r RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (req *http.Request, err error)
 }
 
 type HttpRequestor interface {
@@ -83,9 +83,9 @@ type CaaHttpRequestor struct {
 
 type CAAConnector interface {
 	CreateObject(obj cc.IpamObject, ref string) (id string, err error)
-	GetObject(obj cc.IpamObject, ref string, res interface{}) error
-	ExportObjects(obj cc.IpamObject, res interface{}) (err error)
-	DeleteObject(obj cc.IpamObject, ref string) (refRes string, err error)
+	GetObject(obj cc.IpamObject, ref string, res interface{}, query *cc.QueryParams) error
+	ExportObjects(obj cc.IpamObject, res interface{}, query *cc.QueryParams) (err error)
+	DeleteObject(obj cc.IpamObject, ref string, query *cc.QueryParams) (refRes string, err error)
 	UpdateObject(obj cc.IpamObject, ref string) (refRes string, err error)
 }
 
@@ -174,31 +174,39 @@ func (wrb *CaaRequestBuilder) Init(cfg HostConfig) {
 	wrb.HostConfig = cfg
 }
 
-func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, obj cc.IpamObject, ref string) (urlStr string) {
+func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (urlStr string) {
 	path := []string{"workflow"}
 	if len(ref) > 0 {
 		path = append(path, ref)
 	}
 
-	var objJSON []byte
-	var err error
-	objJSON, err = json.Marshal(obj)
-	if err != nil {
-		log.Printf("Cannot marshal object '%s': %s", obj, err)
-		// return path
-	}
-	var dataMap map[string]interface{}
-	if err := json.Unmarshal(objJSON, &dataMap); err != nil {
-		fmt.Println("Error unmarshaling JSON:", err)
-		return
-	}
+	// var objJSON []byte
+	// var err error
+	// objJSON, err = json.Marshal(obj)
+	// if err != nil {
+	// 	log.Printf("Cannot marshal object '%s': %s", obj, err)
+	// 	// return path
+	// }
+	// var dataMap map[string]interface{}
+	// if err := json.Unmarshal(objJSON, &dataMap); err != nil {
+	// 	fmt.Println("Error unmarshaling JSON:", err)
+	// 	return
+	// }
 	vals := url.Values{}
-	for key, value := range dataMap {
-		vals.Set(key, fmt.Sprintf("%v", value))
+	// for key, value := range dataMap {
+	// 	if value != nil && value != "" && fmt.Sprintf("%v", value) != "" {
+	// 		vals.Set(key, fmt.Sprintf("%v", value))
+	// 	}
+	// }
+
+	if query != nil {
+		for k, v := range query.SearchFields {
+			vals.Add(k, v)
+		}
 	}
 
 	qry := ""
-	if t == GET {
+	if t == GET || t == DELETE {
 		qry = vals.Encode()
 	}
 
@@ -253,9 +261,9 @@ func (wrb *CaaRequestBuilder) BuildBody(t RequestType, obj cc.IpamObject) []byte
 	return objJSON
 }
 
-func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref string) (req *http.Request, err error) {
+func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (req *http.Request, err error) {
 
-	urlStr := wrb.BuildUrl(t, obj, ref)
+	urlStr := wrb.BuildUrl(t, obj, ref, query)
 
 	var bodyStr []byte
 	if obj != nil {
@@ -275,14 +283,14 @@ func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref
 	return
 }
 
-func (c *Connector) makeRequest(t RequestType, obj cc.IpamObject, ref string) (res []byte, err error) {
+func (c *Connector) makeRequest(t RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (res []byte, err error) {
 	var req *http.Request
-	req, err = c.RequestBuilder.BuildRequest(t, obj, ref)
+	req, err = c.RequestBuilder.BuildRequest(t, obj, ref, query)
 	res, err = c.Requestor.SendRequest(req)
 
 	// tries twice ...
 	if err != nil {
-		req, err = c.RequestBuilder.BuildRequest(t, obj, ref)
+		req, err = c.RequestBuilder.BuildRequest(t, obj, ref, query)
 		res, err = c.Requestor.SendRequest(req)
 	}
 
@@ -314,8 +322,8 @@ func NewConnector(hostConfig HostConfig, transportConfig TransportConfig,
  * then TF getSubnet should call getSubnetById to retrieve it at the end of the create execution to return the block information
  */
 func (c *Connector) CreateObject(obj cc.IpamObject, ref string) (id string, err error) {
-
-	resp, err := c.makeRequest(CREATE, obj, ref)
+	query := cc.NewQueryParams(nil)
+	resp, err := c.makeRequest(CREATE, obj, ref, query)
 	if err != nil || len(resp) == 0 {
 		log.Printf("CreateObject request error: '%s'\n", err)
 		return
@@ -339,8 +347,8 @@ func (c *Connector) CreateObject(obj cc.IpamObject, ref string) (id string, err 
 }
 
 /* the GetObject expects a JS object as res interface{} */
-func (c *Connector) GetObject(obj cc.IpamObject, ref string, res interface{}) (err error) {
-	resp, err := c.makeRequest(GET, obj, ref)
+func (c *Connector) GetObject(obj cc.IpamObject, ref string, res interface{}, query *cc.QueryParams) (err error) {
+	resp, err := c.makeRequest(GET, obj, ref, query)
 	if err != nil {
 		log.Printf("GetObject request error: '%s'\n", err)
 		return err
@@ -356,9 +364,9 @@ func (c *Connector) GetObject(obj cc.IpamObject, ref string, res interface{}) (e
 	return
 }
 
-func (c *Connector) DeleteObject(obj cc.IpamObject, ref string) (refRes string, err error) {
+func (c *Connector) DeleteObject(obj cc.IpamObject, ref string, query *cc.QueryParams) (refRes string, err error) {
 	refRes = ""
-	resp, err := c.makeRequest(DELETE, obj, ref)
+	resp, err := c.makeRequest(DELETE, obj, ref, query)
 	if err != nil {
 		log.Printf("DeleteObject request error: '%s'\n", err)
 		return
@@ -369,8 +377,9 @@ func (c *Connector) DeleteObject(obj cc.IpamObject, ref string) (refRes string, 
 }
 
 func (c *Connector) UpdateObject(obj cc.IpamObject, ref string) (refRes string, err error) {
+	query := cc.NewQueryParams(nil)
 	refRes = ""
-	resp, err := c.makeRequest(UPDATE, obj, ref)
+	resp, err := c.makeRequest(UPDATE, obj, ref, query)
 	if err != nil {
 		log.Printf("Failed to update object %s: %s", obj.ObjectType(), err)
 		return
@@ -397,11 +406,11 @@ store params (in addition to objType) into obj
 
 	return an array of ipmaObjects
 */
-func (c *Connector) ExportObjects(obj cc.IpamObject, res interface{}) (err error) {
+func (c *Connector) ExportObjects(obj cc.IpamObject, res interface{}, query *cc.QueryParams) (err error) {
 
 	// API End point will become: https://<ip>:1880/workflow/tf/export/<objType>
 
-	resp, err := c.makeRequest(EXPORT, obj, "/ipcaddsubnet")
+	resp, err := c.makeRequest(EXPORT, obj, "/ipcaddsubnet", query)
 	if err != nil {
 		log.Printf("ExportObjects request error: '%s'\n", err)
 		return err

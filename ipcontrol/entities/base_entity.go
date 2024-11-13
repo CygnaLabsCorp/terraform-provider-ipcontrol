@@ -24,3 +24,18 @@ func (obj *ObjBase) ObjectType() string {
 func (obj *ObjBase) Params() Params {
 	return obj.Parameters
 }
+
+type QueryParams struct {
+	SearchFields map[string]string
+}
+
+func NewQueryParams(searchFields map[string]string) *QueryParams {
+	qp := QueryParams{}
+	if searchFields != nil {
+		qp.SearchFields = searchFields
+	} else {
+		qp.SearchFields = make(map[string]string)
+	}
+
+	return &qp
+}
