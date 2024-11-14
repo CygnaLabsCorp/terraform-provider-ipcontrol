@@ -52,10 +52,11 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"diamondip_subnet": resourceSubnet(),
+			"cygnalabs_ipc_subnet": resourceSubnet(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"diamondip_subnets": dataSourceSubnets(),
+			"cygnalabs_ipc_subnet": dataSourceSubnets(),
+			// "cygnalabs_ipc_address": dataSourceAddress(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

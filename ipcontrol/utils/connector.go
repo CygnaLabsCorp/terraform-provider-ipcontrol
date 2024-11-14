@@ -201,7 +201,9 @@ func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, obj cc.IpamObject, ref str
 
 	if query != nil {
 		for k, v := range query.SearchFields {
-			vals.Add(k, v)
+			if v != "" && fmt.Sprintf("%v", v) != "" {
+				vals.Add(k, v)
+			}
 		}
 	}
 
@@ -431,22 +433,22 @@ func (c *Connector) ExportObjects(obj cc.IpamObject, res interface{}, query *cc.
 	return
 }
 
-func RunDebug() {
-	hostConfig := HostConfig{
-		Host:     "192.168.89.155",
-		Port:     "1880",
-		Username: "incadmin",
-		Password: "incadmin",
-	}
-	requestBuilder := CaaRequestBuilder{}
-	requestor := CaaHttpRequestor{}
-	transportConfig := TransportConfig{}
-	connector, _ := NewConnector(hostConfig, transportConfig, &requestBuilder, &requestor)
+// func RunDebug() {
+// 	hostConfig := HostConfig{
+// 		Host:     "192.168.89.155",
+// 		Port:     "1880",
+// 		Username: "incadmin",
+// 		Password: "incadmin",
+// 	}
+// 	requestBuilder := CaaRequestBuilder{}
+// 	requestor := CaaHttpRequestor{}
+// 	transportConfig := TransportConfig{}
+// 	connector, _ := NewConnector(hostConfig, transportConfig, &requestBuilder, &requestor)
 
-	objMgr := new(ObjectManager)
-	objMgr.connector = connector
+// 	objMgr := new(ObjectManager)
+// 	objMgr.connector = connector
 
-	//result, err := objMgr.CreateSubnet("incadmin", "incadmin", "/InControl/phong", "138.0.0.0", "Any", "24")
-	result, err := objMgr.GetIPAddress("23.0.0.2", "/InControl/phong")
-	fmt.Print(result, err)
-}
+// 	//result, err := objMgr.CreateSubnet("incadmin", "incadmin", "/InControl/phong", "138.0.0.0", "Any", "24")
+// 	result, err := objMgr.GetIPAddress("23.0.0.2", "/InControl/phong")
+// 	fmt.Print(result, err)
+// }

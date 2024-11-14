@@ -27,29 +27,54 @@ func resourceSubnet() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"rawcontainer": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"address_version": {
 				ForceNew: true,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  4,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"dns_domain": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"block_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"cloud_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"cloud_object_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -61,34 +86,49 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
 
-	// trimmed strings
-	container := strings.TrimSpace(d.Get("container").(string))
-	cc.FormatContainer(&container)
 	address := strings.TrimSpace(d.Get("address").(string))
-	typeSubnet := strings.TrimSpace(d.Get("type").(string))
+	container := strings.TrimSpace(d.Get("container").(string))
+	rawContainer := d.Get("rawcontainer").(bool)
 	size := d.Get("size").(int)
-	name := d.Get("name").(string)
-	version := d.Get("address_version").(int)
+	status := strings.TrimSpace(d.Get("block_status").(string))
+	addressVersion := d.Get("address_version").(int)
+	blockType := strings.TrimSpace(d.Get("type").(string))
+	DNSDomain := strings.TrimSpace(d.Get("dns_domain").(string))
+	name := strings.TrimSpace(d.Get("name").(string))
+	cloudType := strings.TrimSpace(d.Get("cloud_type").(string))
+	cloudObjectId := strings.TrimSpace(d.Get("cloud_object_id").(string))
 
-	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
-
-	var subnet *en.IPCSubnetPost
 	var err error
+	subnet := en.NewSubnetPost(en.IPCSubnetPost{
+		Container:      container,
+		RawContainer:   rawContainer,
+		Address:        address,
+		AddressVersion: addressVersion,
+		Type:           blockType,
+		Size:           size,
+		DNSDomain:      DNSDomain,
+		Name:           name,
+		BlockStatus:    status,
+		CloudType:      cloudType,
+		CloudObjectId:  cloudObjectId,
+	})
+
+	log.Println("[DEBUG] Subnet post: " + fmt.Sprintf("%v", subnet))
 
 	// we demand all the create/reserveIps logic to the CAA
-	subnet, err = objMgr.CreateSubnet(container, address, typeSubnet, size, name, version)
+	_, err = objMgr.CreateSubnet(subnet)
 	if err != nil {
 		return err
 	}
 
 	// the Id comes back from the CreateSubnet
-	d.SetId(subnet.Address)
+	// d.SetId(subnet.Address)
 
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
 	// now pull the resource up after deployment via the ID
 	// return getSubnetRecord(d, m)
-	return nil
+	return getSubnetRecord(d, m)
 }
 
 func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
@@ -97,21 +137,43 @@ func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] %s: Reading the required subnet block", rsSubnetIdString(d))
 
-	obj, err := objMgr.GetSubnetByIdRef(string(d.Id()))
+	address := strings.TrimSpace(d.Get("address").(string))
+	container := strings.TrimSpace(d.Get("container").(string))
+	rawContainer := d.Get("rawcontainer").(bool)
+	size := d.Get("size").(int)
+	status := strings.TrimSpace(d.Get("block_status").(string))
+
+	query := map[string]string{
+		"address":      address,
+		"container":    container,
+		"rawcontainer": strconv.FormatBool(rawContainer),
+		"size":         strconv.FormatInt(int64(size), 10),
+		"status":       status,
+	}
+
+	response, err := objMgr.GetSubnet(query)
 	if err != nil {
 		return err
 	}
+
+	//d.SetId(strconv.Itoa(response.ID))
+	//setIPCSubnetDataData(d, response)
+
 	//d.SetId(obj.Id)
 
 	// setting computed properties from returned object JSON
-	// d.Set("username", string(obj.Username))
-	// d.Set("password", string(obj.Password))
-	container := strings.Join(obj.Container, ",")
-	cc.FormatContainer(&container)
-	d.Set("container", container)
-	d.Set("address", string(obj.Address))
-	d.Set("size", obj.Size)
-	d.Set("name", string(obj.Name))
+	// container := strings.Join(obj.Container, ",")
+	//cc.FormatContainer(&container)
+	// d.Set("container", response.Container)
+	// d.Set("address", response.BlockAddr)
+	// d.Set("type", response.BlockType)
+	// d.Set("size", response.BlockSize)
+	// d.Set("dns_domain", response.Subnet.ForwardDomains)
+	// d.Set("name", response.BlockName)
+	// d.Set("block_status", response.BlockStatus)
+	// d.Set("cloud_type", response.CloudType)
+	// d.Set("cloud_object_id", response.CloudObjectID)
+	flattenIPCSubnet(d, response)
 
 	log.Printf("[DEBUG] %s: Completed reading subnet block", rsSubnetIdString(d))
 
@@ -127,9 +189,9 @@ func updateSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 	size := d.Get("size").(int)
 
-	idRef := d.Id()
+	address := d.Get("address").(string)
 
-	_, err = objMgr.UpdateSubnet(idRef, name, size)
+	_, err = objMgr.UpdateSubnet(address, name, size)
 
 	if err != nil {
 		return err
@@ -145,8 +207,9 @@ func deleteSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] %s: Beginning Deletion of network block", rsSubnetIdString(d))
 	size := d.Get("size").(int)
+	address := d.Get("address").(string)
 
-	refRes, err := objMgr.DeleteSubnetByIdRef(string(d.Id()), strconv.Itoa(size))
+	refRes, err := objMgr.DeleteSubnetByIdRef(address, strconv.Itoa(size))
 	if err != nil {
 		return err
 	}
