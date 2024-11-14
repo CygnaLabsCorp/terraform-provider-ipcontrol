@@ -190,8 +190,10 @@ func updateSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	size := d.Get("size").(int)
 
 	address := d.Get("address").(string)
+	cloudType := d.Get("cloud_type").(string)
+	cloudObjectId := d.Get("cloud_object_id").(string)
 
-	_, err = objMgr.UpdateSubnet(address, name, size)
+	_, err = objMgr.UpdateSubnet(address, name, size, cloudType, cloudObjectId)
 
 	if err != nil {
 		return err

@@ -45,11 +45,15 @@ func (objMgr *ObjectManager) UpdateSubnet(
 	address string,
 	name string,
 	size int,
+	cloudType string,
+	cloudObjectId string,
 ) (*en.IPCSubnetPost, error) {
 	subnet := en.NewSubnetPost(en.IPCSubnetPost{
-		Address: address,
-		Name:    name,
-		Size:    size,
+		Address:       address,
+		Name:          name,
+		Size:          size,
+		CloudType:     cloudType,
+		CloudObjectId: cloudObjectId,
 	})
 
 	_, err := objMgr.connector.UpdateObject(subnet, "/ipcmodifysubnet")
