@@ -10,7 +10,7 @@ import (
 /* CreateSubnet */
 func (objMgr *ObjectManager) CreateSubnet(subnet *en.IPCSubnetPost) (*en.IPCSubnetPost, error) {
 
-	idRef, err := objMgr.connector.CreateObject(subnet, "/ipcaddsubnet")
+	idRef, err := objMgr.connector.CreateObject(subnet, "ipcaddsubnet")
 	log.Println("[DEBUG] Subnet ID: " + fmt.Sprintf("%v", idRef))
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (objMgr *ObjectManager) CreateSubnet(subnet *en.IPCSubnetPost) (*en.IPCSubn
 func (objMgr *ObjectManager) GetSubnet(query map[string]string) (*en.IPCSubnet, error) {
 	subnet := &en.IPCSubnet{}
 	queryParams := en.NewQueryParams(query)
-	err := objMgr.connector.GetObject(nil, "/ipcgetsubnet", &subnet, queryParams)
+	err := objMgr.connector.GetObject(nil, "ipcgetsubnet", &subnet, queryParams)
 	log.Printf("[DEBUG] get subnet: %s \n", subnet)
 	return subnet, err
 }
@@ -35,7 +35,7 @@ func (objMgr *ObjectManager) DeleteSubnetByIdRef(address string, size string) (s
 		"blockAddr": address,
 	}
 	query := en.NewQueryParams(sf)
-	str, err := objMgr.connector.DeleteObject(nil, "/ipcdeletechildblock", query)
+	str, err := objMgr.connector.DeleteObject(nil, "ipcdeletechildblock", query)
 	log.Printf("delete subnet %s", address)
 	return str, err
 }
@@ -56,7 +56,7 @@ func (objMgr *ObjectManager) UpdateSubnet(
 		CloudObjectId: cloudObjectId,
 	})
 
-	_, err := objMgr.connector.UpdateObject(subnet, "/ipcmodifysubnet")
+	_, err := objMgr.connector.UpdateObject(subnet, "ipcmodifysubnet")
 	if err != nil {
 		return nil, err
 	}

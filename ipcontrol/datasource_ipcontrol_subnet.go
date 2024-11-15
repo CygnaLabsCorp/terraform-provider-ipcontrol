@@ -144,13 +144,16 @@ func dataSourceSubnetsRead(ctx context.Context, d *schema.ResourceData, m interf
 func flattenIPCSubnet(d *schema.ResourceData, subnet *en.IPCSubnet) {
 
 	log.Println("[DEBUG] Subnet domain: " + fmt.Sprintf("%v", subnet.Subnet))
-
+	dns_domain := ""
+	if len(subnet.Subnet.ForwardDomains) > 0 {
+		dns_domain = subnet.Subnet.ForwardDomains[0]
+	}
 	d.SetId(strconv.Itoa(subnet.ID))
-	d.Set("container", subnet.Container)
+	d.Set("container", subnet.Container[0])
 	d.Set("address", subnet.BlockAddr)
 	d.Set("type", subnet.BlockType)
 	d.Set("size", subnet.BlockSize)
-	d.Set("dns_domain", subnet.Subnet.ForwardDomains)
+	d.Set("dns_domain", dns_domain)
 	d.Set("name", subnet.BlockName)
 	d.Set("block_status", subnet.BlockStatus)
 	d.Set("cloud_type", subnet.CloudType)
