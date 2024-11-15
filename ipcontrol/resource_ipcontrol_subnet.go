@@ -1,6 +1,7 @@
 package ipcontrol
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -11,15 +12,16 @@ import (
 	en "terraform-provider-ipcontrol/ipcontrol/entities"
 	cc "terraform-provider-ipcontrol/ipcontrol/utils"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSubnet() *schema.Resource {
 	return &schema.Resource{
-		Create: createSubnetRecord,
-		Read:   getSubnetRecord,
-		Update: updateSubnetRecord,
-		Delete: deleteSubnetRecord,
+		CreateContext: createSubnetRecordContext,
+		ReadContext:   getSubnetRecordContext,
+		UpdateContext: updateSubnetRecordContext,
+		DeleteContext: deleteSubnetRecordContext,
 
 		Schema: map[string]*schema.Schema{
 			"container": {
@@ -80,8 +82,8 @@ func resourceSubnet() *schema.Resource {
 	}
 }
 
-func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
-
+func createSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	log.Printf("[DEBUG] %s: Beginning network block Creation", rsSubnetIdString(d))
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
@@ -118,7 +120,12 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	// we demand all the create/reserveIps logic to the CAA
 	_, err = objMgr.CreateSubnet(subnet)
 	if err != nil {
-		return err
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Create subnet failed",
+			Detail:   fmt.Sprintf("Create Subnet block (%s) failed : %s", address, err),
+		})
+		return diags
 	}
 
 	// the Id comes back from the CreateSubnet
@@ -127,11 +134,12 @@ func createSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
 	// now pull the resource up after deployment via the ID
-	// return getSubnetRecord(d, m)
-	return getSubnetRecord(d, m)
+	// return getSubnetRecordContext(d, m)
+	return getSubnetRecordContext(ctx, d, m)
 }
 
-func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
+func getSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
 
@@ -153,7 +161,12 @@ func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	response, err := objMgr.GetSubnet(query)
 	if err != nil {
-		return err
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Getting Subnet failed",
+			Detail:   fmt.Sprintf("Getting Subnet block (%s) failed : %s", address, err),
+		})
+		return diags
 	}
 
 	//d.SetId(strconv.Itoa(response.ID))
@@ -177,11 +190,12 @@ func getSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] %s: Completed reading subnet block", rsSubnetIdString(d))
 
-	return nil
+	return diags
 }
 
-func updateSubnetRecord(d *schema.ResourceData, m interface{}) error {
+func updateSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
 	var err error
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
@@ -196,14 +210,20 @@ func updateSubnetRecord(d *schema.ResourceData, m interface{}) error {
 	_, err = objMgr.UpdateSubnet(address, name, size, cloudType, cloudObjectId)
 
 	if err != nil {
-		return err
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Update Subnet failed",
+			Detail:   fmt.Sprintf("Update Subnet block (%s) failed : %s", address, err),
+		})
+		return diags
 	}
 
-	return getSubnetRecord(d, m)
+	return getSubnetRecordContext(ctx, d, m)
 
 }
 
-func deleteSubnetRecord(d *schema.ResourceData, m interface{}) error {
+func deleteSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
 
@@ -213,13 +233,18 @@ func deleteSubnetRecord(d *schema.ResourceData, m interface{}) error {
 
 	refRes, err := objMgr.DeleteSubnetByIdRef(address, strconv.Itoa(size))
 	if err != nil {
-		return err
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Delete Subnet failed",
+			Detail:   fmt.Sprintf("Delete Subnet block (%s) failed : %s", address, err),
+		})
+		return diags
 	}
 	// return empty string "" if deleted!
 	d.SetId(refRes)
 	log.Printf("[DEBUG] %s: Deletion of network block complete", rsSubnetIdString(d))
 
-	return nil
+	return diags
 }
 
 type rsSubnetIdStringInterface interface {
