@@ -9,7 +9,6 @@ For IPv6, the size value is larger due to the increased address space. IPv6 pref
 * `address_version` - `int`: **optional**, The version of IP Address. Choose 4 for IPV4 or 6 for IPV6. Defaults to 4.
 * `rawcontainer` - `boolean`: **optional**, Set to true to pass the container parameter through to the API without prefixing.
 * `type` - `string`: **optional**, The Block Type for the block If not specified, a block type of Any is assumed.
-* `dns_domain` - `string`: **optional**, The name of the dns domain that will hold the block.
 * `name` - `string`: **optional**, The name of the block.
 * `block_status` - `string`: **optional**, The current status of the block. 
                   Accepted values are: Deployed, FullyAssigned, Reserved, Aggregate

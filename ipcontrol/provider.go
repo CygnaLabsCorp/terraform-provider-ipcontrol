@@ -17,27 +17,32 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_SERVER", nil),
-				Description: "Diamond IP CAA server IP address.",
+				Description: "CAA server IP address.",
 			},
 			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_USERNAME", nil),
-				Description: "User to authenticate with Diamond IP CAA.",
+				Description: "User to authenticate with IPC or QIP.",
 			},
 			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_PASSWORD", nil),
-				Description: "Password to authenticate with Diamond IP CAA.",
+				Description: "Password to authenticate with IPC or QI.",
 			},
 			"port": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CAA_PORT", "1880"),
-				Description: "Port number used for connection to Diamond IP CAA.",
+				Description: "Port number used for connection to CAA.",
 			},
-
+			"context": {
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("CONTEXT", "workflow"),
+				Description: "Context of CAA.",
+			},
 			"sslverify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -52,11 +57,14 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"cygnalabs_ipc_subnet": resourceSubnet(),
+			"cygnalabs_ipc_subnet":      resourceSubnet(),
+			"cygnalabs_qip_ipv4_subnet": resourceQipIPv4Subnet(),
+			"cygnalabs_qip_ipv6_subnet": resourceQipIPv6Subnet(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cygnalabs_ipc_subnet": dataSourceSubnets(),
-			// "cygnalabs_ipc_address": dataSourceAddress(),
+			"cygnalabs_ipc_subnet":      dataSourceSubnets(),
+			"cygnalabs_qip_ipv4_subnet": dataSourceQipIPv4Subnet(),
+			"cygnalabs_qip_ipv6_subnet": dataSourceQipIPv6Subnet(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -71,6 +79,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	hostConfig := cc.HostConfig{
 		Host:     d.Get("server").(string),
 		Port:     d.Get("port").(string),
+		Context:  d.Get("context").(string),
 		Username: d.Get("username").(string),
 		Password: d.Get("password").(string),
 	}

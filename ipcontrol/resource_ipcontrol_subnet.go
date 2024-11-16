@@ -117,7 +117,6 @@ func createSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m in
 
 	log.Println("[DEBUG] Subnet post: " + fmt.Sprintf("%v", subnet))
 
-	// we demand all the create/reserveIps logic to the CAA
 	_, err = objMgr.CreateSubnet(subnet)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -128,13 +127,9 @@ func createSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m in
 		return diags
 	}
 
-	// the Id comes back from the CreateSubnet
-	// d.SetId(subnet.Address)
-
+	d.SetId(address)
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
-	// now pull the resource up after deployment via the ID
-	// return getSubnetRecordContext(d, m)
 	return getSubnetRecordContext(ctx, d, m)
 }
 
@@ -169,25 +164,7 @@ func getSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m inter
 		return diags
 	}
 
-	//d.SetId(strconv.Itoa(response.ID))
-	//setIPCSubnetDataData(d, response)
-
-	//d.SetId(obj.Id)
-
-	// setting computed properties from returned object JSON
-	// container := strings.Join(obj.Container, ",")
-	//cc.FormatContainer(&container)
-	// d.Set("container", response.Container)
-	// d.Set("address", response.BlockAddr)
-	// d.Set("type", response.BlockType)
-	// d.Set("size", response.BlockSize)
-	// d.Set("dns_domain", response.Subnet.ForwardDomains)
-	// d.Set("name", response.BlockName)
-	// d.Set("block_status", response.BlockStatus)
-	// d.Set("cloud_type", response.CloudType)
-	// d.Set("cloud_object_id", response.CloudObjectID)
 	flattenIPCSubnet(d, response)
-
 	log.Printf("[DEBUG] %s: Completed reading subnet block", rsSubnetIdString(d))
 
 	return diags
@@ -231,7 +208,7 @@ func deleteSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m in
 	size := d.Get("size").(int)
 	address := d.Get("address").(string)
 
-	refRes, err := objMgr.DeleteSubnetByIdRef(address, strconv.Itoa(size))
+	_, err := objMgr.DeleteSubnetByIdRef(address, strconv.Itoa(size))
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -240,8 +217,8 @@ func deleteSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m in
 		})
 		return diags
 	}
-	// return empty string "" if deleted!
-	d.SetId(refRes)
+
+	d.SetId(address)
 	log.Printf("[DEBUG] %s: Deletion of network block complete", rsSubnetIdString(d))
 
 	return diags
@@ -256,5 +233,5 @@ func rsSubnetIdString(d rsSubnetIdStringInterface) string {
 	if id == "" {
 		id = "<new resource>"
 	}
-	return fmt.Sprintf("diamondip_subnet (ID = %s)", id)
+	return fmt.Sprintf("ID = %s", id)
 }

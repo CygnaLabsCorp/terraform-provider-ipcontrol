@@ -26,6 +26,7 @@ import (
 type HostConfig struct {
 	Host     string
 	Port     string
+	Context  string
 	Username string
 	Password string
 }
@@ -84,7 +85,6 @@ type CaaHttpRequestor struct {
 type CAAConnector interface {
 	CreateObject(obj cc.IpamObject, ref string) (id string, err error)
 	GetObject(obj cc.IpamObject, ref string, res interface{}, query *cc.QueryParams) error
-	ExportObjects(obj cc.IpamObject, res interface{}, query *cc.QueryParams) (err error)
 	DeleteObject(obj cc.IpamObject, ref string, query *cc.QueryParams) (refRes string, err error)
 	UpdateObject(obj cc.IpamObject, ref string) (refRes string, err error)
 }
@@ -103,8 +103,6 @@ const (
 	GET
 	DELETE
 	UPDATE
-	EXPORT
-	LOGIN
 )
 
 func (r RequestType) toMethod() string {
@@ -117,10 +115,6 @@ func (r RequestType) toMethod() string {
 		return "DELETE"
 	case UPDATE:
 		return "PUT"
-	case EXPORT:
-		return "POST"
-	case LOGIN:
-		return "POST"
 	}
 
 	return ""
@@ -175,29 +169,12 @@ func (wrb *CaaRequestBuilder) Init(cfg HostConfig) {
 }
 
 func (wrb *CaaRequestBuilder) BuildUrl(t RequestType, obj cc.IpamObject, ref string, query *cc.QueryParams) (urlStr string) {
-	path := []string{"workflow"}
+	path := []string{wrb.HostConfig.Context}
 	if len(ref) > 0 {
 		path = append(path, ref)
 	}
 
-	// var objJSON []byte
-	// var err error
-	// objJSON, err = json.Marshal(obj)
-	// if err != nil {
-	// 	log.Printf("Cannot marshal object '%s': %s", obj, err)
-	// 	// return path
-	// }
-	// var dataMap map[string]interface{}
-	// if err := json.Unmarshal(objJSON, &dataMap); err != nil {
-	// 	fmt.Println("Error unmarshaling JSON:", err)
-	// 	return
-	// }
 	vals := url.Values{}
-	// for key, value := range dataMap {
-	// 	if value != nil && value != "" && fmt.Sprintf("%v", value) != "" {
-	// 		vals.Set(key, fmt.Sprintf("%v", value))
-	// 	}
-	// }
 
 	if query != nil {
 		for k, v := range query.SearchFields {
@@ -233,32 +210,6 @@ func (wrb *CaaRequestBuilder) BuildBody(t RequestType, obj cc.IpamObject) []byte
 	}
 
 	log.Println("[DEBUG] BuildBody objJSON: " + fmt.Sprintln(string(objJSON)))
-
-	// // append the 'Params' object which includes the selectors attributes
-	// params := obj.Params()
-
-	// log.Println("[DEBUG] BuildBody params: " + fmt.Sprintf("%v", params))
-
-	// if len(params) > 0 {
-	// 	paramsJSON, err := json.Marshal(params)
-
-	// 	if err != nil {
-	// 		log.Printf("Cannot marshal Search attributes. '%s'\n", err)
-	// 		return nil
-	// 	}
-
-	// 	log.Printf("[DEBUG] len (objJSON): %v", len(objJSON))
-
-	// 	if len(objJSON) > 2 { // if it's empty it's '{}'
-	// 		objJSON = append(append(objJSON[:len(objJSON)-1], byte(',')), paramsJSON[1:]...)
-	// 	} else {
-	// 		// if it's empty = {}, then just assign the full paramsJSON to objJSON, the append above will generate a ',' empty beginning element in the json otherwise
-	// 		objJSON = paramsJSON
-	// 	}
-
-	// 	// this should shows that the params obj was appended to the body
-	// 	log.Println("[DEBUG] BuildBody paramsJSON: " + fmt.Sprintln(string(paramsJSON)))
-	// }
 
 	return objJSON
 }
@@ -402,53 +353,3 @@ func (c *Connector) UpdateObject(obj cc.IpamObject, ref string) (refRes string, 
 	}
 	return
 }
-
-/*
-store params (in addition to objType) into obj
-
-	return an array of ipmaObjects
-*/
-func (c *Connector) ExportObjects(obj cc.IpamObject, res interface{}, query *cc.QueryParams) (err error) {
-
-	// API End point will become: https://<ip>:1880/workflow/tf/export/<objType>
-
-	resp, err := c.makeRequest(EXPORT, obj, "/ipcaddsubnet", query)
-	if err != nil {
-		log.Printf("ExportObjects request error: '%s'\n", err)
-		return err
-	}
-
-	err = json.Unmarshal(resp, res)
-	if err != nil {
-		log.Printf("ExportObjects: Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
-		return err
-	}
-
-	if len(resp) == 0 {
-		return
-	}
-
-	log.Printf("[DEBUG] ExportObjects JSON unmarshalled '%s'", string(resp))
-
-	return
-}
-
-// func RunDebug() {
-// 	hostConfig := HostConfig{
-// 		Host:     "192.168.89.155",
-// 		Port:     "1880",
-// 		Username: "incadmin",
-// 		Password: "incadmin",
-// 	}
-// 	requestBuilder := CaaRequestBuilder{}
-// 	requestor := CaaHttpRequestor{}
-// 	transportConfig := TransportConfig{}
-// 	connector, _ := NewConnector(hostConfig, transportConfig, &requestBuilder, &requestor)
-
-// 	objMgr := new(ObjectManager)
-// 	objMgr.connector = connector
-
-// 	//result, err := objMgr.CreateSubnet("incadmin", "incadmin", "/InControl/phong", "138.0.0.0", "Any", "24")
-// 	result, err := objMgr.GetIPAddress("23.0.0.2", "/InControl/phong")
-// 	fmt.Print(result, err)
-// }

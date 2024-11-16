@@ -63,38 +63,3 @@ func (objMgr *ObjectManager) UpdateSubnet(
 
 	return subnet, nil
 }
-
-/* Export Subnet(s) via body parameter selectors */
-func (objMgr *ObjectManager) ExportSubnets(params en.Params) (*[]en.IPCSubnet, error) {
-	subnets := []en.IPCSubnet{}
-
-	// instantiate an empty subnet, so that the objectType will be picked by the build* functions in the caaclient.go
-	subnet := en.NewSubnet(en.IPCSubnet{})
-
-	// append all params to the subnet
-	// if params != nil && len(params) > 0 {
-	// 	subnet.Parameters = en.Params(params)
-	// }
-	query := en.NewQueryParams(nil)
-	err := objMgr.connector.ExportObjects(subnet, &subnets, query)
-
-	// log.Println("[DEBUG] ExportSubnets Response: "+fmt.Sprintf("%v", subnets))
-
-	if err != nil || subnets == nil { // || len(res) == 0 {
-		return nil, err
-	}
-
-	return &subnets, nil
-}
-
-// func (objMgr *ObjectManager) GetIPAddress(ip string, container string) (*en.IPCAddressGet, error) {
-// 	ipAddress := en.NewIPCAddressGet(en.IPCAddressGet{})
-// 	sf := map[string]string{
-// 		"iPAddress": ip,
-// 		"container": container,
-// 	}
-// 	query := en.NewQueryParams(sf)
-// 	err := objMgr.connector.GetObject(ipAddress, "/ipcgetdevice", &ipAddress, query)
-// 	log.Printf("[DEBUG] get address: %v", ipAddress)
-// 	return ipAddress, err
-// }
