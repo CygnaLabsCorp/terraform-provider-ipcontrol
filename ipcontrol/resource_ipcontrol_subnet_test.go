@@ -19,7 +19,7 @@ func TestAccASubnet(t *testing.T) {
 			//  Step 1 create
 			{
 
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
@@ -37,7 +37,7 @@ func TestAccASubnet(t *testing.T) {
 			},
 			// Step 2 update
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
@@ -59,7 +59,7 @@ func TestAccASubnet(t *testing.T) {
 			// step 3 Update size
 
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
@@ -91,7 +91,7 @@ func TestAccAAAASubnet(t *testing.T) {
 			//  Step 1 create
 			{
 
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
@@ -111,7 +111,7 @@ func TestAccAAAASubnet(t *testing.T) {
 			},
 			// Step 2 update name
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
@@ -134,7 +134,7 @@ func TestAccAAAASubnet(t *testing.T) {
 			// step 3 Update size
 
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true

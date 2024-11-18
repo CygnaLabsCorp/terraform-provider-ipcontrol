@@ -24,7 +24,6 @@ func (objMgr *ObjectManager) GetSubnet(query map[string]string) (*en.IPCSubnet, 
 	subnet := &en.IPCSubnet{}
 	queryParams := en.NewQueryParams(query)
 	err := objMgr.connector.GetObject(nil, "ipcgetsubnet", &subnet, queryParams)
-	log.Printf("[DEBUG] get subnet: %s \n", subnet)
 	return subnet, err
 }
 

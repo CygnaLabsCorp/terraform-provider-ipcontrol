@@ -1,5 +1,9 @@
 package ipcontrol
 
-func testAccConfigWithProvider(config string) string {
-	return server + "\n" + config
+func testAccConfigWithProviderIPC(config string) string {
+	return serverIPC + "\n" + config
+}
+
+func testAccConfigWithProviderQIP(config string) string {
+	return serverQIP + "\n" + config
 }

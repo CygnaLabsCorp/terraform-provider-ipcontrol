@@ -29,10 +29,18 @@ func testAccPreCheck(t *testing.T) {
 	return
 }
 
-var server = fmt.Sprintf(
+var serverIPC = fmt.Sprintf(
 	`provider "cygnalabs" {
-		server = "192.168.89.155"
+		server = "127.0.0.1"
 		port = "1880"
 		password = "incadmin"
 		username = "incadmin"
 	  }`)
+
+var serverQIP = fmt.Sprintf(
+	`provider "cygnalabs" {
+	server = "127.0.0.1"
+	port = "1880"
+	password = "qipman"
+	username = "qipman"
+	}`)

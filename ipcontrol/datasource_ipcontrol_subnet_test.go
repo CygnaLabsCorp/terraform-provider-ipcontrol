@@ -12,7 +12,7 @@ func TestAccADataSourceIPC(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet" {
 						rawcontainer = true
@@ -47,7 +47,7 @@ func TestAccAAAADataSourceIPC(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccConfigWithProvider(
+				Config: testAccConfigWithProviderIPC(
 					`
 					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
