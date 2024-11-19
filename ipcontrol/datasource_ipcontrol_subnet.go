@@ -132,7 +132,7 @@ func dataSourceSubnetsRead(ctx context.Context, d *schema.ResourceData, m interf
 func flattenIPCSubnet(d *schema.ResourceData, subnet *en.IPCSubnet) {
 
 	d.SetId(subnet.BlockAddr)
-	d.Set("container", subnet.Container[0])
+	// d.Set("container", subnet.Container[0])
 	d.Set("address", subnet.BlockAddr)
 	d.Set("type", subnet.BlockType)
 	d.Set("size", subnet.BlockSize)
