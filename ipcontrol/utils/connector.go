@@ -221,7 +221,7 @@ func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref
 	urlStr := wrb.BuildUrl(t, obj, ref, query)
 
 	var bodyStr []byte
-	if obj != nil {
+	if obj != nil && t != DELETE && t != GET {
 		bodyStr = wrb.BuildBody(t, obj)
 	}
 
