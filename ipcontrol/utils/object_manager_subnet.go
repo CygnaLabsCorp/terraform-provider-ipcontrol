@@ -23,7 +23,7 @@ func (objMgr *ObjectManager) CreateSubnet(subnet *en.IPCSubnetPost) (*en.IPCSubn
 func (objMgr *ObjectManager) GetSubnet(query map[string]string) (*en.IPCSubnet, error) {
 	subnet := &en.IPCSubnet{}
 	queryParams := en.NewQueryParams(query)
-	err := objMgr.connector.GetObject(nil, "ipcgetsubnet", &subnet, queryParams)
+	err := objMgr.connector.GetObject(en.NewSubnet(en.IPCSubnet{}), "ipcgetsubnet", &subnet, queryParams)
 	return subnet, err
 }
 
@@ -34,7 +34,7 @@ func (objMgr *ObjectManager) DeleteSubnetByIdRef(address string, size string) (s
 		"blockAddr": address,
 	}
 	query := en.NewQueryParams(sf)
-	str, err := objMgr.connector.DeleteObject(nil, "ipcdeletechildblock", query)
+	str, err := objMgr.connector.DeleteObject(en.NewSubnet(en.IPCSubnet{}), "ipcdeletechildblock", query)
 	log.Printf("delete subnet %s", address)
 	return str, err
 }

@@ -33,14 +33,14 @@ var serverIPC = fmt.Sprintf(
 	`provider "cygnalabs" {
 		server = "127.0.0.1"
 		port = "1880"
-		password = "incadmin"
-		username = "incadmin"
+		password_ipc = "incadmin"
+		username_ipc = "incadmin"
 	  }`)
 
 var serverQIP = fmt.Sprintf(
 	`provider "cygnalabs" {
 	server = "127.0.0.1"
 	port = "1880"
-	password = "qipman"
-	username = "qipman"
+	password_qip = "qipman"
+	username_qip = "qipman"
 	}`)

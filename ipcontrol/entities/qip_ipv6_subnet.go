@@ -57,7 +57,7 @@ type QipIPv6SubnetModify struct {
 
 func NewQipIPv6SubnetModify(sb QipIPv6SubnetModify) *QipIPv6SubnetModify {
 	res := sb
-	res.objectType = "qip_ip6_subnet_modify"
+	res.objectType = "qip_ipv6_subnet_modify"
 	return &res
 }
 

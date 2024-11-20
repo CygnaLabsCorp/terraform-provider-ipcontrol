@@ -21,7 +21,7 @@ func (objMgr *ObjectManager) CreateQipIpv6Subnet(subnet *en.QipIPv6Subnet) error
 func (objMgr *ObjectManager) GetQipIPv6Subnet(query map[string]string) (*en.QipIPv6SubnetGet, error) {
 	subnet := &en.QipIPv6SubnetGet{}
 	queryParams := en.NewQueryParams(query)
-	err := objMgr.connector.GetObject(nil, "qipgetsubnet", &subnet, queryParams)
+	err := objMgr.connector.GetObject(en.NewQipIPv6Subnet(en.QipIPv6Subnet{}), "qipgetsubnet", &subnet, queryParams)
 	log.Printf("[DEBUG] Get QIP Ipv6 Subnet: %s \n", subnet)
 	return subnet, err
 }
@@ -30,7 +30,7 @@ func (objMgr *ObjectManager) GetQipIPv6Subnet(query map[string]string) (*en.QipI
 func (objMgr *ObjectManager) DeleteQipIPv6Subnet(query map[string]string) error {
 	queryParams := en.NewQueryParams(query)
 	log.Println("[DEBUG] Subnet delete: " + fmt.Sprintf("%v", queryParams))
-	_, err := objMgr.connector.DeleteObject(nil, "qipdeletesubnet", queryParams)
+	_, err := objMgr.connector.DeleteObject(en.NewQipIPv6Subnet(en.QipIPv6Subnet{}), "qipdeletesubnet", queryParams)
 	return err
 }
 
