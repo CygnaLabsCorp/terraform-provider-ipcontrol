@@ -19,29 +19,17 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("CAA_SERVER", nil),
 				Description: "CAA server IP address.",
 			},
-			"username_ipc": {
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("USERNAME_IPC", nil),
+				DefaultFunc: schema.EnvDefaultFunc("USERNAME", nil),
 				Description: "User to authenticate with IPC.",
 			},
-			"password_ipc": {
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("PASSWORD_IPC", nil),
+				DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
 				Description: "Password to authenticate with IPC.",
-			},
-			"username_qip": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("USERNAME_QIP", nil),
-				Description: "User to authenticate with QIP.",
-			},
-			"password_qip": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("PASSWORD_QIP", nil),
-				Description: "Password to authenticate with QIP.",
 			},
 			"port": {
 				Type:        schema.TypeString,
@@ -69,14 +57,10 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"cygnalabs_ipc_subnet":      resourceSubnet(),
-			"cygnalabs_qip_ipv4_subnet": resourceQipIPv4Subnet(),
-			"cygnalabs_qip_ipv6_subnet": resourceQipIPv6Subnet(),
+			"ipcontrol_subnet": resourceSubnet(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cygnalabs_ipc_subnet":      dataSourceSubnets(),
-			"cygnalabs_qip_ipv4_subnet": dataSourceQipIPv4Subnet(),
-			"cygnalabs_qip_ipv6_subnet": dataSourceQipIPv6Subnet(),
+			"ipcontrol_subnet": dataSourceSubnets(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -89,13 +73,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var seconds int64
 	seconds = int64(d.Get("connect_timeout").(int))
 	hostConfig := cc.HostConfig{
-		Host:        d.Get("server").(string),
-		Port:        d.Get("port").(string),
-		Context:     d.Get("context").(string),
-		UsernameIPC: d.Get("username_ipc").(string),
-		PasswordIPC: d.Get("password_ipc").(string),
-		UsernameQIP: d.Get("username_qip").(string),
-		PasswordQIP: d.Get("password_qip").(string),
+		Host:     d.Get("server").(string),
+		Port:     d.Get("port").(string),
+		Context:  d.Get("context").(string),
+		Username: d.Get("username").(string),
+		Password: d.Get("password").(string),
 	}
 
 	transportConfig := cc.TransportConfig{

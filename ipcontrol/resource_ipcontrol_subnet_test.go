@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccASubnet(t *testing.T) {
-	resourceName := "cygnalabs_ipc_subnet.my-ipc-subnet-2"
+	resourceName := "ipcontrol_subnet.my-ipc-subnet-2"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -21,7 +21,7 @@ func TestAccASubnet(t *testing.T) {
 
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "13.0.0.0"
@@ -39,7 +39,7 @@ func TestAccASubnet(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "13.0.0.0"
@@ -61,7 +61,7 @@ func TestAccASubnet(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-2" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-2" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "13.0.0.0"
@@ -82,7 +82,7 @@ func TestAccASubnet(t *testing.T) {
 }
 
 func TestAccAAAASubnet(t *testing.T) {
-	resourceName := "cygnalabs_ipc_subnet.my-ipc-subnet-v6"
+	resourceName := "ipcontrol_subnet.my-ipc-subnet-v6"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -93,7 +93,7 @@ func TestAccAAAASubnet(t *testing.T) {
 
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "2a04:2880:10ff:8001::"
@@ -113,7 +113,7 @@ func TestAccAAAASubnet(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "2a04:2880:10ff:8001::"
@@ -136,7 +136,7 @@ func TestAccAAAASubnet(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "2a04:2880:10ff:8001::"
@@ -196,7 +196,7 @@ func testAccCheckSubnetDestroy(s *terraform.State) error {
 	objMgr := cc.NewObjectManager(connector)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "cygnalabs_ipc_subnet" {
+		if rs.Type != "ipcontrol_subnet" {
 			continue
 		}
 

@@ -24,13 +24,11 @@ import (
 )
 
 type HostConfig struct {
-	Host        string
-	Port        string
-	Context     string
-	UsernameIPC string
-	PasswordIPC string
-	UsernameQIP string
-	PasswordQIP string
+	Host     string
+	Port     string
+	Context  string
+	Username string
+	Password string
 }
 
 type TransportConfig struct {
@@ -234,11 +232,7 @@ func (wrb *CaaRequestBuilder) BuildRequest(t RequestType, obj cc.IpamObject, ref
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	if strings.HasPrefix(obj.ObjectType(), "ipc") {
-		req.SetBasicAuth(wrb.HostConfig.UsernameIPC, wrb.HostConfig.PasswordIPC)
-	} else {
-		req.SetBasicAuth(wrb.HostConfig.UsernameQIP, wrb.HostConfig.PasswordQIP)
-	}
+	req.SetBasicAuth(wrb.HostConfig.Username, wrb.HostConfig.Password)
 
 	return
 }
