@@ -275,7 +275,7 @@ func NewConnector(hostConfig HostConfig, transportConfig TransportConfig,
 /* Just the ID is produced as output
  * then TF getSubnet should call getSubnetById to retrieve it at the end of the create execution to return the block information
  */
-func (c *Connector) CreateObject(obj cc.IpamObject, ref string) (id string, err error) {
+func (c *Connector) CreateObject(obj cc.IpamObject, ref string) (response string, err error) {
 	query := cc.NewQueryParams(nil)
 	resp, err := c.makeRequest(CREATE, obj, ref, query)
 	if err != nil || len(resp) == 0 {
@@ -285,17 +285,7 @@ func (c *Connector) CreateObject(obj cc.IpamObject, ref string) (id string, err 
 
 	// expects a string literal as result
 	// so in case not provided in the response from the CAA just append them before being unamashalled
-	s := string(resp[:])
-	if !strings.HasPrefix(s, "\"") {
-		s = strconv.Quote(s)
-	}
-	b := []byte(s)
-
-	err = json.Unmarshal(b, &id)
-	if err != nil {
-		log.Printf("CreateObject Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
-		return
-	}
+	response = string(resp[:])
 
 	return
 }

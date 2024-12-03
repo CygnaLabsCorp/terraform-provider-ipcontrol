@@ -1,17 +1,29 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	en "terraform-provider-ipcontrol/ipcontrol/entities"
 )
 
 /* CreateSubnet */
 func (objMgr *ObjectManager) CreateSubnet(subnet *en.IPCSubnetPost) (*en.IPCSubnetPost, error) {
+	var id string
+	resp, err := objMgr.connector.CreateObject(subnet, "ipcaddsubnet")
+	if !strings.HasPrefix(resp, "\"") {
+		resp = strconv.Quote(resp)
+	}
+	b := []byte(resp)
 
-	idRef, err := objMgr.connector.CreateObject(subnet, "ipcaddsubnet")
-	log.Println("[DEBUG] Subnet ID: " + fmt.Sprintf("%v", idRef))
+	err = json.Unmarshal(b, &id)
+	if err != nil {
+		log.Printf("Create Subnet Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
+	}
+	log.Println("[DEBUG] Subnet ID: " + fmt.Sprintf("%v", id))
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +47,7 @@ func (objMgr *ObjectManager) DeleteSubnetByIdRef(address string, size string) (s
 	}
 	query := en.NewQueryParams(sf)
 	str, err := objMgr.connector.DeleteObject(en.NewSubnet(en.IPCSubnet{}), "ipcdeletechildblock", query)
-	log.Printf("delete subnet %s", address)
+	log.Printf("[DEBUG] delete subnet %s", address)
 	return str, err
 }
 

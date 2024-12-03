@@ -1,40 +1,58 @@
-# [IPC Subnet]
+# Terraform Data Source: ipcontrol_subnet
 
-Use the `cygnalabs_ipc_subnet` data source to retrieve the following information for a block, which is managed by a IPControl:
+## Overview
 
-* `container` - `string`: **required**, The name of the container that will hold the block.
-* `address` - `string`: **required**, The address block to allocate.
-* `size` - `int`: **required**, The size parameter represents the subnet mask or prefix length of the address block in CIDR notation. For IPv4, this is typically a value between 0 and 32 (e.g., 24 for 255.255.255.0).
-For IPv6, the size value is larger due to the increased address space. IPv6 prefix lengths commonly range between /48 to /128, with /64 often used as the standard size for a single subnet.
-* `address_version` - `int`: **optional**, The version of IP Address. Choose 4 for IPV4 or 6 for IPV6. Defaults to 4.
-* `rawcontainer` - `boolean`: **optional**, Set to true to pass the container parameter through to the API without prefixing.
-* `type` - `string`: **optional**, The Block Type for the block If not specified, a block type of Any is assumed.
-* `name` - `string`: **optional**, The name of the block.
-* `block_status` - `string`: **optional**, The current status of the block. 
-                  Accepted values are: Deployed, FullyAssigned, Reserved, Aggregate
-* `cloud_type` - `string`: **optional**, Specify the type of Cloud Provider. Currently one of: AWS, Azure, Cisco ACI, Cisco DNA Center, CloudBolt, OpenStack, ServiceNow, VMware.
-* `cloud_object_id` - `string`: **optional**, The ID of this object as it is known in the cloud environment.
+The `ipcontrol_subnet` data source retrieves information about a block managed by IPControl.
 
+## Parameters
 
+### Required Parameters
 
+| Parameter      | Type     | Description                                                                 |
+|----------------|----------|-----------------------------------------------------------------------------|
+| `container`    | `string` | The name of the container that will hold the block.                        |
+| `address`      | `string` | The address block to allocate.                                             |
+| `size`         | `int`    | The subnet mask or prefix length of the address block in CIDR notation.    |
 
-### Example of a Block
+### Optional Parameters
 
-This example defines a data source of type `cygnalabs_ipc_subnet` and the name "my_ipc_ds", which is configured in a Terraform file.
-You can reference this resource and retrieve information about it.
+| Parameter          | Type      | Description                                                                                      | Default   |
+|--------------------|-----------|--------------------------------------------------------------------------------------------------|-----------|
+| `address_version`  | `int`     | IP Address version (4 for IPv4, 6 for IPv6).                                                     | 4         |
+| `rawcontainer`     | `boolean` | Pass the container parameter through to the API without prefixing.                              | `false`   |
+| `type`             | `string`  | Block Type (defaults to "Any" if not specified).                                                | "Any"    |
+| `name`             | `string`  | The name of the block.                                                                           | -         |
+| `block_status`     | `string`  | The current status of the block. Accepted values: `Deployed`, `FullyAssigned`, `Reserved`, `Aggregate`. | -         |
+| `cloud_type`       | `string`  | Specify the type of Cloud Provider. Supported values: AWS, Azure, Cisco ACI, Cisco DNA Center, CloudBolt, OpenStack, ServiceNow, VMware. | -         |
+| `cloud_object_id`  | `string`  | The ID of this object as it is known in the cloud environment.                                   | -         |
+
+## Address Version Details
+
+### IPv4
+- Size range: 0-32
+- Example: 24 represents 255.255.255.0 subnet mask
+
+### IPv6
+- Size range: 48-128
+- Typical standard size: /64
+
+## Example Usage
+
+This example defines a data source of type `ipcontrol_subnet` named `my_ipc_ds`, which is configured in a Terraform file.
+You can reference this data source to retrieve information about the block.
 
 ```hcl
-data "cygnalabs_ipc_subnet" "my_ipc_ds" {
-  container= "InControl/caa"
-  rawcontainer=true
-  address = "10.0.0.0"
-  address_version=4
-  size=25
+data "ipcontrol_subnet" "my_ipc_ds" {
+  container      = "InControl/caa"
+  rawcontainer   = true
+  address        = "10.0.0.0"
+  address_version = 4
+  size           = 25
 }
 
-// accessing individual field in results
-output ""my-ipc-ds" {
-  value = data.cygnalabs_ipc_subnet.my_ipc_ds.address 
+// Accessing individual fields in results
+output "my-ipc-ds" {
+  value = data.ipcontrol_subnet.my_ipc_ds.address
 }
-
 ```
+

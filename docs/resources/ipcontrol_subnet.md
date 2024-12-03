@@ -1,24 +1,52 @@
-# Resource: [IPC Subnet]
+# Terraform Resource: ipcontrol_subnet
 
-###  Descriptions
-The `cygnalabs_ipc_subnet` resource associates a block with container.
+## Overview
 
-### Parameters
-The following list describes the parameters you can define in the resource block of the record:
+The `ipcontrol_subnet` resource is used to assign IP address blocks for devices within a specified container.
 
-* `container` - `string`: **required**, The name of the container that will hold the block.
-* `address` - `string`: **required**, The address block to allocate.
-* `size` - `int`: **required**, The size parameter represents the subnet mask or prefix length of the address block in CIDR notation. For IPv4, this is typically a value between 0 and 32 (e.g., 24 for 255.255.255.0).
-For IPv6, the size value is larger due to the increased address space. IPv6 prefix lengths commonly range between /48 to /128, with /64 often used as the standard size for a single subnet.
-* `address_version` - `int`: **optional**, The version of IP Address. Choose 4 for IPV4 or 6 for IPV6. Defaults to 4.
-* `rawcontainer` - `boolean`: **optional**, Set to true to pass the container parameter through to the API without prefixing.
-* `type` - `string`: **optional**, The Block Type for the block If not specified, a block type of Any is assumed.
-* `dns_domain` - `string`: **optional**, The name of the dns domain that will hold the block.
-* `name` - `string`: **optional**, The name of the block.
-* `block_status` - `string`: **optional**, The current status of the block. 
-                  Accepted values are: Deployed, FullyAssigned, Reserved, Aggregate
-* `cloud_type` - `string`: **optional**, Specify the type of Cloud Provider. Currently one of: AWS, Azure, Cisco ACI, Cisco DNA Center, CloudBolt, OpenStack, ServiceNow, VMware.
-* `cloud_object_id` - `string`: **optional**, The ID of this object as it is known in the cloud environment.
+## Parameters
+
+### Required Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `container` | `string` | The name of the container that will hold the block. |
+| `address` | `string` | The IP address block to allocate. |
+| `size` | `int` | The subnet mask or prefix length of the address block in CIDR notation. |
+
+### Optional Parameters
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `address_version` | `int` | IP Address version (4 for IPv4, 6 for IPv6) | 4 |
+| `rawcontainer` | `boolean` | Pass container parameter through to API without prefixing | `false` |
+| `type` | `string` | Block Type (defaults to "Any" if not specified) | "Any" |
+| `dns_domain` | `string` | DNS domain name for the block | - |
+| `name` | `string` | Name of the block | - |
+| `block_status` | `string` | Current status of the block | - |
+| `cloud_type` | `string` | Cloud Provider type | - |
+| `cloud_object_id` | `string` | Object ID in the cloud environment | - |
+
+## Address Version Details
+
+### IPv4
+- Size range: 0-32
+- Example: 24 represents 255.255.255.0 subnet mask
+
+### IPv6
+- Size range: 48-128
+- Typical standard size: /64
+
+## Supported Cloud Providers
+
+- AWS
+- Azure
+- Cisco ACI
+- Cisco DNA Center
+- CloudBolt
+- OpenStack
+- ServiceNow
+- VMware
 
 ### ⚠️ Force Replacement Fields
 The following fields after changes will require deleting and recreating the resource:
@@ -28,39 +56,12 @@ The following fields after changes will require deleting and recreating the reso
 
 > **WARNING**: Changing the above fields will result in the current resource being deleted and a new one created. Make sure you back up your data and understand the impact before making changes.
 
-## How to use
-First define `resource` in the .tf file.<br>
-`IPv4` example
-```hcl
-resource "cygnalabs_ipc_subnet" "my-subnet" {
-  // required parameters
-  container       = "InControl/caa"
-  address         = "10.0.0.0"
-  size            = 24
+## Example Usage
 
-  // optional parameters
-  
-  rawcontainer    = true
-  address_version = 4
-  name            = "my-sunet-tf-caa"
-  dns_domain      = "com"
-  cloud_type      = "AWS"
-  cloud_object_id = "subnet-78910"
-}
-```
-`IPv6` expamle
 ```hcl
-resource "cygnalabs_ipc_subnet" "my-ipc-subnet-3" {
-  container = "InControl/caa"
-  address = "2001:db8:85a3::3000:80"
-  address_version = 6
-  rawcontainer    = true
-  size = 121
-  name = "tf-v6-test"
+resource "ipcontrol_subnet" "example" {
+  container = "MyContainer"
+  address   = "192.168.1.0"
+  size      = 24
+  type      = "Any"
 }
-```
-
-Then run
-```bash
-terraform apply
-```
