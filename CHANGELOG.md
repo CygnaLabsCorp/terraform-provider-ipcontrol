@@ -4,9 +4,13 @@
 
 [Full Changelog](https://github.com/CygnaLabsCorp/terraform-provider-ipcontrol/compare/7c69a00410424bc8473b69f3769a29b7473270c8...v1.0.0)
 
-**Merged pull requests:**
+## Resources:
+-   IPC Subnet (ipcontrol_subnet)
 
-- Restructure for Subnet [\#1](https://github.com/CygnaLabsCorp/terraform-provider-ipcontrol/pull/1) ([khoatran-cygna](https://github.com/khoatran-cygna))
+
+## Datasources:
+-   IPC Subnet (ipcontrol_subnet)
+
 
 
 
