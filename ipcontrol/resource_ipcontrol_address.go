@@ -439,19 +439,59 @@ func deleteAddressRecordContext(ctx context.Context, d *schema.ResourceData, m i
 	var diags diag.Diagnostics
 	connector := m.(*cc.Connector)
 	objMgr := cc.NewObjectManager(connector)
-	ipAddress := d.Get("ip_address").(string)
+	// ipAddress := d.Get("ip_address").(string)
 
-	_, err := objMgr.DeleteAddressRef(ipAddress)
+	//  Delete all device in the interfaces
+	interfaces := d.Get("interfaces").([]interface{})
 
-	if err != nil {
-		diag := diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Error when deletting device address",
-			Detail:   fmt.Sprintf("Error when deletting device address: %s", err.Error()),
+	for _, intf := range interfaces {
+		iface := intf.(map[string]interface{})
+
+		ipAddress, ok := iface["ip_address"].([]interface{})
+
+		if !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Can't read ip_address in the address interfaces",
+				Detail:   fmt.Sprintf("Can't read ip_address in the address interfaces: (%s) ", ipAddress),
+			})
+			continue
 		}
-		diags = append(diags, diag)
-		return diags
+
+		ipAddressSlice, err := cc.ToStringSlice(ipAddress)
+
+		if err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Error when format ip_address",
+				Detail:   fmt.Sprintf("Error when format ip_address: (%s)", err),
+			})
+			continue
+		}
+
+		// Delete device by ip address
+		_, err = objMgr.DeleteAddressRef(ipAddressSlice[0])
+		if err != nil {
+			diag := diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Error when deletting device address",
+				Detail:   fmt.Sprintf("Error when deletting device address: %s", err.Error()),
+			}
+			diags = append(diags, diag)
+			continue
+		}
+
 	}
+	// _, err := objMgr.DeleteAddressRef(ipAddress)
+	// if err != nil {
+	// 	diag := diag.Diagnostic{
+	// 		Severity: diag.Error,
+	// 		Summary:  "Error when deletting device address",
+	// 		Detail:   fmt.Sprintf("Error when deletting device address: %s", err.Error()),
+	// 	}
+	// 	diags = append(diags, diag)
+	// 	return diags
+	// }
 	d.SetId("")
 
 	return diags
