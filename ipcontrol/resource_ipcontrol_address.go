@@ -53,7 +53,6 @@ func resourceAddress() *schema.Resource {
 			"hostname": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The host name of the Device.",
 			},
 			"id": {
