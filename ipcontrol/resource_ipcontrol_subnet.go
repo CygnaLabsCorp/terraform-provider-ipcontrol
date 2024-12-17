@@ -138,7 +138,7 @@ func createSubnetRecordContext(ctx context.Context, d *schema.ResourceData, m in
 		return diags
 	}
 
-	d.SetId(address)
+	// d.SetId(address)
 	log.Printf("[DEBUG] SubnetId: '%s': Creation on network block complete", rsSubnetIdString(d))
 
 	return getSubnetRecordContext(ctx, d, m)
