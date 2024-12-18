@@ -14,27 +14,27 @@ func TestAccADataSourceIPC(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet" {
+					resource "ipcontrol_subnet" "my-ipc-subnet" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "13.0.0.0"
 						size=24
 					}
 						
-					data "cygnalabs_ipc_subnet" "myds" {
+					data "ipcontrol_subnet" "myds" {
 						container = "InControl/acctest"
 						address = "13.0.0.0"
 						rawcontainer = true
 						size=24
-						depends_on = [cygnalabs_ipc_subnet.my-ipc-subnet]
+						depends_on = [ipcontrol_subnet.my-ipc-subnet]
 					}
 					
 					`,
 				),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.myds", "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.myds", "address", "13.0.0.0"),
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.myds", "size", "24"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.myds", "container", "InControl/acctest"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.myds", "address", "13.0.0.0"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.myds", "size", "24"),
 				),
 			},
 		},
@@ -49,7 +49,7 @@ func TestAccAAAADataSourceIPC(t *testing.T) {
 			{
 				Config: testAccConfigWithProviderIPC(
 					`
-					resource "cygnalabs_ipc_subnet" "my-ipc-subnet-v6" {
+					resource "ipcontrol_subnet" "my-ipc-subnet-v6" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "2a04:2880:10ff:8001::"
@@ -57,22 +57,22 @@ func TestAccAAAADataSourceIPC(t *testing.T) {
 						size = 121
 					}
 						
-					data "cygnalabs_ipc_subnet" "mydsv6" {
+					data "ipcontrol_subnet" "mydsv6" {
 						rawcontainer = true
 						container = "InControl/acctest"
 						address = "2a04:2880:10ff:8001::"
 						address_version = 6
 						size = 121
-						depends_on = [cygnalabs_ipc_subnet.my-ipc-subnet-v6]
+						depends_on = [ipcontrol_subnet.my-ipc-subnet-v6]
 					}
 					
 					`,
 				),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.mydsv6", "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.mydsv6", "address", "2a04:2880:10ff:8001::"),
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.mydsv6", "size", "121"),
-					resource.TestCheckResourceAttr("data.cygnalabs_ipc_subnet.mydsv6", "address_version", "6"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.mydsv6", "container", "InControl/acctest"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.mydsv6", "address", "2a04:2880:10ff:8001::"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.mydsv6", "size", "121"),
+					resource.TestCheckResourceAttr("data.ipcontrol_subnet.mydsv6", "address_version", "6"),
 				),
 			},
 		},

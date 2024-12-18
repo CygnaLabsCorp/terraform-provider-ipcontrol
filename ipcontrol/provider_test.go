@@ -13,7 +13,7 @@ var testAccProvider *schema.Provider
 func init() {
 	testAccProvider = Provider()
 	testAccProviders = map[string]*schema.Provider{
-		"cygnalabs": testAccProvider,
+		"ipcontrol": testAccProvider,
 	}
 }
 
@@ -30,17 +30,11 @@ func testAccPreCheck(t *testing.T) {
 }
 
 var serverIPC = fmt.Sprintf(
-	`provider "cygnalabs" {
-		server = "127.0.0.1"
-		port = "1880"
-		password_ipc = "incadmin"
-		username_ipc = "incadmin"
-	  }`)
-
-var serverQIP = fmt.Sprintf(
-	`provider "cygnalabs" {
-	server = "127.0.0.1"
-	port = "1880"
-	password_qip = "qipman"
-	username_qip = "qipman"
-	}`)
+	`
+	provider "ipcontrol" {
+		server   = "192.168.89.155"
+		port     = "1880"
+		username = "incadmin"
+		password = "incadmin"
+	}`,
+)
