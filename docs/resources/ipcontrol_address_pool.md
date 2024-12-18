@@ -2,7 +2,7 @@
 
 ## Overview
 
-The resource manages address pool in IPControl.
+The `ipcontrol_address_pool` resource manages address pool in IPControl.
 
 ## Parameters
 
