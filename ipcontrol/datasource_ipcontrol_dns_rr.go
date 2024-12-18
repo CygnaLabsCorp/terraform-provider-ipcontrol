@@ -16,7 +16,7 @@ func dataSourceDnsRRs() *schema.Resource {
 			"domain_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Domain type already defined to IPControl.",
+				Description: "The name of the domain type to which the domain belongs.",
 			},
 			"domain": {
 				Type:        schema.TypeString,
@@ -45,7 +45,8 @@ func dataSourceDnsRRs() *schema.Resource {
 			},
 			"data": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: "The data portion of the resource record. The format is dependent on the type specified above.",
 			},
 			"comment": {
