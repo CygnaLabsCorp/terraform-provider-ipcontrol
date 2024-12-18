@@ -2,7 +2,7 @@
 
 ## Overview
 
-The resource manages device configurations with comprehensive network and interface settings.
+The `ipcontrol_address` resource manages device configurations with comprehensive network and interface settings.
 
 ## Parameters
 
