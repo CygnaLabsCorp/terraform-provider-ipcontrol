@@ -10,17 +10,24 @@ import (
 )
 
 var (
-	startIPv4AddrPoolTest         = "99.99.99.1"
-	startIPv4AddrPoolTestUpdate   = "99.99.99.3"
-	endIPv4AddrPoolTest           = "99.99.99.10"
-	endIPv4AddrPoolTestUpdate     = "99.99.99.12"
-	primaryNetServiceAddrPoolTest = "dhcp"
-
-	startIPv6AddrPoolTest             = "2404:da1c:351:9000::"
-	startIPv6AddrPoolTestUpdate       = "2404:da1c:351:9000:4d8b:cd2f:9128:6d00"
-	prefixLength                      = "120"
-	prefixLengthUpdate                = "121"
-	primaryNetServiceIPv6AddrPoolTest = "dhcpv6"
+	startIPv4AddrPool             = "99.99.99.1"
+	startIPv4AddrPoolUpdate       = "99.99.99.3"
+	endIPv4AddrPool               = "99.99.99.10"
+	endIPv4AddrPoolUpdate         = "99.99.99.12"
+	primaryNetServiceAddrPool     = "dhcp"
+	typeIPv4                      = "Dynamic DHCP"
+	typeIPv6                      = "Dynamic NA DHCPv6"
+	addrPoolName                  = "my-addrp"
+	addrPoolNameUpdate            = "my-addrp-update"
+	addrPoolNameIPv6              = "my-addrp-v6"
+	addrPoolNameIPv6Update        = "my-addrp-v6-update"
+	startIPv6AddrPool             = "2404:da1c:351:9000::"
+	startIPv6AddrPoolUpdate       = "2404:da1c:351:9000:4d8b:cd2f:9128:6d00"
+	prefixLength                  = "120"
+	prefixLengthUpdate            = "121"
+	primaryNetServiceIPv6AddrPool = "dhcpv6"
+	dhcpOptionSet                 = "Cisco DHCPv6 Option Set"
+	dhcpPolicySet                 = "Cisco DHCP 8.0 Client Class Template Policy Set"
 )
 
 func TestAccAddressPoolIPv4(t *testing.T) {
@@ -38,22 +45,22 @@ func TestAccAddressPoolIPv4(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool" {
 						start_address       = "%s"
 						end_address         = "%s"
-						name                = "my-addrp"
-						type                = "Dynamic DHCP"
+						name                = "%s"
+						type                = "%s"
 						primary_net_service = "%s"
 
 						lifecycle {
 							ignore_changes = [overlap_interface_ip, prefix_length]
 						}
-					}`, startIPv4AddrPoolTest, endIPv4AddrPoolTest, primaryNetServiceAddrPoolTest),
+					}`, startIPv4AddrPool, endIPv4AddrPool, addrPoolName, typeIPv4, primaryNetServiceAddrPool),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPoolTest),
-					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPoolTest),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic DHCP"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp"),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPool),
+					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPool),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv4),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolName),
 				),
 			},
 			// Step 2 update start addr and end addr
@@ -63,22 +70,22 @@ func TestAccAddressPoolIPv4(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool" {
 						start_address       = "%s"
 						end_address         = "%s"
-						name                = "my-addrp"
-						type                = "Dynamic DHCP"
+						name                = "%s"
+						type                = "%s"
 						primary_net_service = "%s"
 
 						lifecycle {
 							ignore_changes = [overlap_interface_ip, prefix_length]
 						}
-					}`, startIPv4AddrPoolTestUpdate, endIPv4AddrPoolTestUpdate, primaryNetServiceAddrPoolTest),
+					}`, startIPv4AddrPoolUpdate, endIPv4AddrPoolUpdate, addrPoolName, typeIPv4, primaryNetServiceAddrPool),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPoolTestUpdate),
-					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPoolTestUpdate),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic DHCP"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp"),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPoolUpdate),
+					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPoolUpdate),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv4),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolName),
 				),
 			},
 
@@ -90,22 +97,22 @@ func TestAccAddressPoolIPv4(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool" {
 						start_address       = "%s"
 						end_address         = "%s"
-						name                = "my-addrp-update"
-						type                = "Dynamic DHCP"
+						name                = "%s"
+						type                = "%s"
 						primary_net_service = "%s"
 
 						lifecycle {
 							ignore_changes = [overlap_interface_ip, prefix_length]
 						}
-					}`, startIPv4AddrPoolTestUpdate, endIPv4AddrPoolTestUpdate, primaryNetServiceAddrPoolTest),
+					}`, startIPv4AddrPoolUpdate, endIPv4AddrPoolUpdate, addrPoolNameUpdate, typeIPv4, primaryNetServiceAddrPool),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPoolTestUpdate),
-					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPoolTestUpdate),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic DHCP"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp-update"),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv4AddrPoolUpdate),
+					resource.TestCheckResourceAttr(resourceName, "end_address", endIPv4AddrPoolUpdate),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv4),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolNameUpdate),
 				),
 			},
 		},
@@ -127,20 +134,20 @@ func TestAccAddressPoolIPv6(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool-v6" {
 						start_address       = "%s"
 						prefix_length       = %v
-						name                = "my-addrp-v6"
-						type                = "Dynamic NA DHCPv6"
+						name                = "%s"
+						type                = "%s"
 						primary_net_service = "%s"
 
-					}`, startIPv6AddrPoolTest, prefixLength, primaryNetServiceIPv6AddrPoolTest),
+					}`, startIPv6AddrPool, prefixLength, addrPoolNameIPv6, typeIPv6, primaryNetServiceIPv6AddrPool),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPoolTest),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPool),
 					resource.TestCheckResourceAttr(resourceName, "prefix_length", prefixLength),
-					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPoolTest),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic NA DHCPv6"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp-v6"),
+					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPool),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv6),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolNameIPv6),
 				),
 			},
 			// Step 2 update start addr and prefix length
@@ -151,20 +158,20 @@ func TestAccAddressPoolIPv6(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool-v6" {
 						start_address       = "%s"
 						prefix_length       = %v
-						name                = "my-addrp-v6"
-						type                = "Dynamic NA DHCPv6"
+						name                = "%s"
+						type                = "%v"
 						primary_net_service = "%s"
 
-					}`, startIPv6AddrPoolTestUpdate, prefixLengthUpdate, primaryNetServiceIPv6AddrPoolTest),
+					}`, startIPv6AddrPoolUpdate, prefixLengthUpdate, addrPoolNameIPv6, typeIPv6, primaryNetServiceIPv6AddrPool),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPoolTestUpdate),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPoolUpdate),
 					resource.TestCheckResourceAttr(resourceName, "prefix_length", prefixLengthUpdate),
-					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPoolTest),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic NA DHCPv6"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp-v6"),
+					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPool),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv6),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolNameIPv6),
 				),
 			},
 
@@ -177,24 +184,24 @@ func TestAccAddressPoolIPv6(t *testing.T) {
 						resource "ipcontrol_address_pool" "my-addr-pool-v6" {
 						start_address       = "%s"
 						prefix_length       = %v
-						name                = "my-addrp-v6-update"
-						type                = "Dynamic NA DHCPv6"
+						name                = "%s"
+						type                = "%s"
 						primary_net_service = "%s"
-						dhcp_option_set      = "Cisco DHCPv6 Option Set"
-						dhcp_policy_set      = "Cisco DHCP 8.0 Client Class Template Policy Set"
+						dhcp_option_set      = "%s"
+						dhcp_policy_set      = "%s"
 
-					}`, startIPv6AddrPoolTestUpdate, prefixLengthUpdate, primaryNetServiceIPv6AddrPoolTest),
+					}`, startIPv6AddrPoolUpdate, prefixLengthUpdate, addrPoolNameIPv6Update, typeIPv6, primaryNetServiceIPv6AddrPool, dhcpOptionSet, dhcpPolicySet),
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddressPoolExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "container", "InControl/acctest"),
-					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPoolTestUpdate),
+					resource.TestCheckResourceAttr(resourceName, "start_address", startIPv6AddrPoolUpdate),
 					resource.TestCheckResourceAttr(resourceName, "prefix_length", prefixLengthUpdate),
-					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPoolTest),
-					resource.TestCheckResourceAttr(resourceName, "type", "Dynamic NA DHCPv6"),
-					resource.TestCheckResourceAttr(resourceName, "name", "my-addrp-v6-update"),
-					resource.TestCheckResourceAttr(resourceName, "dhcp_option_set", "Cisco DHCPv6 Option Set"),
-					resource.TestCheckResourceAttr(resourceName, "dhcp_policy_set", "Cisco DHCP 8.0 Client Class Template Policy Set"),
+					resource.TestCheckResourceAttr(resourceName, "primary_net_service", primaryNetServiceIPv6AddrPool),
+					resource.TestCheckResourceAttr(resourceName, "type", typeIPv6),
+					resource.TestCheckResourceAttr(resourceName, "name", addrPoolNameIPv6Update),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_option_set", dhcpOptionSet),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_policy_set", dhcpPolicySet),
 				),
 			},
 		},
